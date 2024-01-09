@@ -29,8 +29,8 @@ namespace IceCreamShop
 
         static void AddIceCream(IceCream iceCream)
         {
-           
 
+            
         }
 
         static void DeleteIceCream(int index)
