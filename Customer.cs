@@ -49,7 +49,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"{Name,-10} {MemberID,-10} {DOB.ToString("dd/MM/yyyy"),-10}";
+            return $"  {Name,-10} {MemberID,-10} {DOB.ToString("dd/MM/yyyy"),-10}";
         }
     }
 }
