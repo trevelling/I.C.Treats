@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Globalization;
 using S10258591_PRG2Assignment;
 
@@ -140,163 +141,66 @@ namespace IceCreamShop
             // Creating a new Order for the customer selected
             Order newOrder = new Order(customerIndex, DateTime.Now);
 
-            // Choosing Option
-            Console.WriteLine("Choose your option!");
-            Console.Write("[Cup] [Cone] [Waffle]: \n");
-            string option = Console.ReadLine().ToLower();
+            //Linking the new order to the customer's current order
+            customers[customerIndex].CurrentOrder = newOrder;
 
-            string waffleFlavour = "Plain"; 
+            // Initialize flag for adding more ice creams
+            bool addMoreIceCreams = true;
 
-            if (option.ToLower().Trim() == "waffle")
+            while (addMoreIceCreams)
             {
-                Console.WriteLine("Choose your waffle flavour!");
-                Console.Write("[Plain] [Red Velvet] [Charcoal] [Pandan]: \n");
-                waffleFlavour = Console.ReadLine().ToLower();
-            }
+                // Choosing Option
+                Console.WriteLine("Choose your option!");
+                Console.Write("[Cup] [Cone] [Waffle]: \n");
+                string option = Console.ReadLine().ToLower();
 
-            // Choosing No. of Scoops
-            Console.WriteLine("Choose the no. of scoops!");
-            Console.Write("[1] [2] [3]: \n");
-            int scoops = Convert.ToInt32(Console.ReadLine().ToLower());
+                string waffleFlavour = "Plain";
 
-            List<Flavour> flavourList = new List<Flavour>();
-            List<Topping> toppingList = new List<Topping>();
-
-            if (scoops == 1)
-            {
-                // Choosing premium or non-premium flavour
-                Console.WriteLine("Choose your flavor!");
-                Console.Write("Would you like premium [y/n]: ");
-                string userInput = Console.ReadLine().ToLower();
-                bool premium = userInput.ToLower() == "y";
-
-                if (premium)
+                // Choosing waffle flavour if waffle is selected
+                if (option.ToLower().Trim() == "waffle")
                 {
-                    // Choosing which premium flavour
-                    Console.WriteLine("Choose your premium flavour!");
-                    Console.Write("[Durian] [Ube] [Sea Salt]: \n");
-                    string flavour = Console.ReadLine().ToLower();
-                    Flavour premiumFlavour = new Flavour(flavour, premium, scoops);
-                    flavourList.Add(premiumFlavour);
-
-                    // Choosing which toppings 
-                    Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: ");
-                    string topping = Console.ReadLine().ToLower();
-                    Topping toppings = new Topping(topping);
-                    toppingList.Add(toppings);
-                }
-                else
-                {
-                    // Choosing which non-premium flavour
-                    Console.WriteLine("Choose your non-premium flavour!");
-                    Console.Write("[Vanilla] [Chocolate] [Strawberry]: \n");
-                    string flavour = Console.ReadLine().ToLower();
-                    Flavour nonPremiumFlavour = new Flavour(flavour, premium, scoops);
-                    flavourList.Add(nonPremiumFlavour);
-
-                    // Choosing which toppings 
-                    Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: ");
-                    string topping = Console.ReadLine().ToLower();
-                    Topping toppings = new Topping(topping);
-                    toppingList.Add(toppings);
+                    Console.WriteLine("Choose your waffle flavour!");
+                    Console.Write("[Plain] [Red Velvet] [Charcoal] [Pandan]: \n");
+                    waffleFlavour = Console.ReadLine().ToLower();
                 }
 
-                // Adding a new IceCream object based on the option
-                IceCream iceCream;
+                // Choosing No. of Scoops
+                Console.WriteLine("Choose the no. of scoops!");
+                Console.Write("[1] [2] [3]: \n");
+                int scoops = Convert.ToInt32(Console.ReadLine().ToLower());
 
-                if (option.Trim() == "cup")
+                List<Flavour> flavourList = new List<Flavour>();
+                List<Topping> toppingList = new List<Topping>();
+
+                for (int scoopNumber = 1; scoopNumber <= scoops; scoopNumber++)
                 {
-                    iceCream = new Cup(option, scoops, flavourList, toppingList);
-             
-     
-                }
-                else if (option.ToLower().Trim() == "cone")
-                {
-                    iceCream = new Cone(option, scoops, flavourList, toppingList, false);
+                    // Choosing premium or non-premium flavour for each scoop
+                    Console.WriteLine($"Choose your flavor for scoop {scoopNumber}!");
+                    Console.Write("Would you like premium [y/n]: ");
+                    string userInput = Console.ReadLine().ToLower();
+                    bool premium = userInput.ToLower() == "y";
 
-                }
-                else if (option.ToLower().Trim() == "waffle")
-                {
-                    iceCream = new Waffle(option, scoops, flavourList, toppingList, waffleFlavour);
-            
-                }
-                else
-                {
-                    Console.WriteLine("Invalid option");
-                }
-                Console.WriteLine($"A new {option}-IceCream was added!\n");
-
-            }
-            else if (scoops == 2)
-            {
-                // Choosing first premium or non-premium flavour
-                Console.WriteLine("Choose your first flavor!");
-                Console.Write("Would you like your first scoop to be premium [y/n]: ");
-                string userInput1 = Console.ReadLine();
-                bool premium1 = userInput1.ToLower() == "y";
-
-
-                if (premium1)
-                {
-                    // Choosing which first premium flavour
-                    Console.WriteLine("Choose your premium flavour!");
-                    Console.Write("[Durian] [Ube] [Sea Salt]: \n");
-                    string flavour1 = Console.ReadLine().ToLower();
-                    Flavour premiumFlavour1 = new Flavour(flavour1, premium1, scoops);
-                    flavourList.Add(premiumFlavour1);
-
-                    // Choosing second premium or non-premium flavour
-                    Console.WriteLine("Choose your second flavor!");
-                    Console.Write("Would you like your second scoop to be premium [y/n]: ");
-                    string userInput2 = Console.ReadLine();
-                    bool premium2 = userInput1.ToLower() == "y";
-
-                    if (premium2)
+                    Console.WriteLine(
+                        $"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
+                    if (premium)
                     {
-                        // Choosing which second premium flavour
-                        Console.WriteLine("Choose your premium flavour!");
                         Console.Write("[Durian] [Ube] [Sea Salt]: \n");
-                        string flavour2 = Console.ReadLine().ToLower();
-                        Flavour premiumFlavour2 = new Flavour(flavour2, premium2, scoops);
-                        flavourList.Add(premiumFlavour2);
-
-                        // Choosing which toppings 
-                        Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: ");
-                        string topping = Console.ReadLine().ToLower();
-                        Topping toppings = new Topping(topping);
-                        toppingList.Add(toppings);
                     }
                     else
                     {
-                        // Choosing which second non-premium flavour
-                        Console.WriteLine("Choose your non-premium flavour!");
                         Console.Write("[Vanilla] [Chocolate] [Strawberry]: \n");
-                        string flavour2 = Console.ReadLine().ToLower();
-                        Flavour nonPremiumFlavour2 = new Flavour(flavour2, premium2, scoops);
-                        flavourList.Add(nonPremiumFlavour2);
-
-                        // Choosing which toppings 
-                        Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: ");
-                        string topping = Console.ReadLine().ToLower();
-                        Topping toppings = new Topping(topping);
-                        toppingList.Add(toppings);
                     }
-                }
-                else
-                {
-                    // Choosing which non-premium flavour
-                    Console.WriteLine("Choose your non-premium flavour!");
-                    Console.Write("[Vanilla] [Chocolate] [Strawberry]: \n");
-                    string flavour = Console.ReadLine().ToLower();
-                    Flavour nonPremiumFlavour = new Flavour(flavour, premium1, scoops);
-                    flavourList.Add(nonPremiumFlavour);
 
-                    // Choosing which toppings 
-                    Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: ");
-                    string topping = Console.ReadLine().ToLower();
-                    Topping toppings = new Topping(topping);
-                    toppingList.Add(toppings);
+                    string flavour = Console.ReadLine().ToLower();
+                    Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
+                    flavourList.Add(iceCreamFlavour);
                 }
+
+                // Choosing toppings
+                Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: \n");
+                string topping = Console.ReadLine().ToLower();
+                Topping toppings = new Topping(topping);
+                toppingList.Add(toppings);
 
                 // Adding a new IceCream object based on the option
                 IceCream iceCream;
@@ -304,29 +208,30 @@ namespace IceCreamShop
                 if (option.Trim() == "cup")
                 {
                     iceCream = new Cup(option, scoops, flavourList, toppingList);
-
-
                 }
                 else if (option.ToLower().Trim() == "cone")
                 {
                     iceCream = new Cone(option, scoops, flavourList, toppingList, false);
-
                 }
                 else if (option.ToLower().Trim() == "waffle")
                 {
                     iceCream = new Waffle(option, scoops, flavourList, toppingList, waffleFlavour);
-
                 }
                 else
                 {
                     Console.WriteLine("Invalid option");
+                    return;
                 }
-                Console.WriteLine($"A new {option}-IceCream was added!\n");
 
+                newOrder.AddIceCream(iceCream);
 
+                Console.WriteLine($"A new {option}-IceCream with {scoops} scoop(s) was added!\n");
 
+                // Prompting user if they want to add another ice cream
+                Console.Write("Would you like to add another ice cream to the order? [Y/N]: ");
+                string addMoreIceCreamsInput = Console.ReadLine().ToLower();
+                addMoreIceCreams = addMoreIceCreamsInput == "y"; //if y sets to true, otherwise false
             }
-
         }
     }
 }
