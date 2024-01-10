@@ -41,6 +41,10 @@ namespace IceCreamShop
                 {
                     CreateNewOrder(customerList);
                 }
+                else if (option == 5)
+                {
+                    Console.WriteLine('b');
+                }
             }
         }
 
