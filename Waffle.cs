@@ -68,7 +68,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"Option: {Option}";
+            return $"{base.ToString()}Waffle Flavour: {WaffleFlavour}"; 
         }
     }
 }
