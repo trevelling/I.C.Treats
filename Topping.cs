@@ -8,9 +8,12 @@ namespace IceCreamShop
 {
     class Topping
     {
-        public string Type { get; set; }
+        public string Type { get; private set; }
 
-        public Topping(){} // Default Constructor
+        public Topping()
+        {
+            Type = string.Empty;
+        } // Default Constructor
 
         public Topping(string type)
         {
@@ -19,7 +22,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"null";
+            return $"Type: {Type}";
         }
     }
 }

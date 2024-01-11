@@ -9,22 +9,47 @@ namespace S10258591_PRG2Assignment
 {
     class PointCard
     {
-        public int Points { get; set; }
-        public int PunchCard { get; set; }
-        public string Tier { get; set; }
+        public int Points { get; private set; }
+        public int PunchCard { get; private set; }
+        public string Tier { get; private set; }
 
-        public PointCard(){} // Default Constructor
-
+        public PointCard()
+        {
+            Points = 0;
+            PunchCard = 0;
+            Tier = "Ordinary";
+        } // Default Constructor
+        
         public PointCard(int points, int punchCard)
         {
             Points = points;
             PunchCard = punchCard;
+            if (Points >= 100)
+            {
+                Tier = "Gold";
+            }
+            else if (Points >= 50)
+            {
+                Tier = "Silver";
+            }
+            else
+            {
+                Tier = "Ordinary"; 
+            }
         }
 
         public void AddPoints(int points)
         {
             Points += points;
-        }
+            if (Points >= 100 && Tier != "Gold")
+            {
+                Tier = "Gold";
+            }
+            else if (Points >= 50 && Tier != "Gold" && Tier != "Silver")
+            {
+                Tier = "Silver";
+            }
+        }//Tier of pointcard will not drop
 
         public void RedeemPoints(int points)
         {
@@ -41,34 +66,14 @@ namespace S10258591_PRG2Assignment
                         Console.WriteLine("Order placed in the gold members order queue.");
                     }
 
-                    Console.WriteLine($"Redeemed {points} points. Deducted ${redemptionAmount} from the bill.");
-                    Points -= points;
-                }
-                else
-                {
-                    Console.WriteLine("Only silver and gold members can redeem points.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Insufficient points to redeem.");
-            }
-
-        }
-
-        public void Punch()
+        static void Punch()
         {
-            PunchCard++;
-            if (PunchCard == 10)
-            {
-                PunchCard = 0;
-                Console.WriteLine("Punch card fully punched! You get the next ice cream free.");
-            }
+            
         }
 
         public override string ToString()
         {
-            return $"null";
+            return $"Points: {Points} PunchCard: {PunchCard} Tier: {Tier}";
         }
     }
 

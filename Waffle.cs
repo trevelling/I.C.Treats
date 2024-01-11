@@ -8,16 +8,26 @@ namespace IceCreamShop
 {
     class Waffle : IceCream
     {
-        public string WaffleFlavour { get; set; }
+        public string WaffleFlavour { get; private set; }
 
-        public Waffle(){} // Default Constructor
+        public Waffle() : base("Waffle", 0, new List<Flavour>(), new List<Topping>())
+        {
+            WaffleFlavour = string.Empty;
+        } // Default Constructor
 
-        public Waffle(string option, int scoops, List<Flavour> flavours, List<Topping> toppings, string waffleFlavour) : base(option, scoops,
-            flavours, toppings)
+        // Isnt the option always Waffle why do we need it in the constructor
+        public Waffle(
+            string option, 
+            int scoops, 
+            List<Flavour> flavours, 
+            List<Topping> toppings, 
+            string waffleFlavour
+            ) : base(option, scoops, flavours, toppings)
         {
             WaffleFlavour = waffleFlavour;
         }
 
+        // Calculate price of waffle 
         public override double CalculatePrice()
         {
             double basePrice = 0;
@@ -58,7 +68,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"null";
+            return $"{base.ToString()}Waffle Flavour: {WaffleFlavour}"; 
         }
     }
 }

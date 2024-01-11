@@ -22,6 +22,7 @@ namespace IceCreamShop
             List<Customer> customerList = new List<Customer>();
             initCustomers("customers.csv", customerList);
 
+
             while (true)
             {
                 DisplayMenu();
@@ -34,6 +35,10 @@ namespace IceCreamShop
                     // 1) List all customers 
                     DisplayAllCustomers(customerList);
                 }
+                if (option == 2)
+                {
+                    // BRAYDEN) List all current orders 
+                }
                 else if (option == 3)
                 {
                     // Register new customers
@@ -42,6 +47,10 @@ namespace IceCreamShop
                 else if (option == 4)
                 {
                     CreateNewOrder(customerList);
+                }
+                else if (option == 5)
+                {
+                    Console.WriteLine('b');
                 }
             }
         }
