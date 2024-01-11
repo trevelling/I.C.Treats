@@ -56,23 +56,21 @@ namespace S10258591_PRG2Assignment
             if (Points >= points)
             {
                 // Only silver and gold members can redeem points
-                if (Tier.ToLower() == "silver" || Tier.ToLower() == "gold")
+                if (Tier.ToLower() == "Silver" || Tier.ToLower() == "Gold")
                 {
                     double redemptionAmount = points * 0.02;
 
                     // If the member is gold, place the order in the special gold members order queue
-                    if (Tier.ToLower() == "gold")
+                    if (Tier.ToLower() == "Gold")
                     {
                         Console.WriteLine("Order placed in the gold members order queue.");
                     }
                 }
             }
         }
-        //change
         public void Punch()
         {
             Points++;
-
         }
 
         public override string ToString()
