@@ -68,10 +68,11 @@ namespace S10258591_PRG2Assignment
                 }
             }
         }
-
-        static void Punch()
+        //change
+        public void Punch()
         {
-            
+            Points++;
+
         }
 
         public override string ToString()
