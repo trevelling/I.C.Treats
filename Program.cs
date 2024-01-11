@@ -197,10 +197,23 @@ namespace IceCreamShop
                 }
 
                 // Choosing toppings
-                Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos]: \n");
-                string topping = Console.ReadLine().ToLower();
-                Topping toppings = new Topping(topping);
-                toppingList.Add(toppings);
+
+                for (int i = 0; i < 4; i++)
+                {
+                    Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos] [\"N\" to finish]: \n");
+                    string topping = Console.ReadLine().ToLower();
+
+                    if (topping.ToLower() == "n")
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Topping toppings = new Topping(topping);
+                        toppingList.Add(toppings);
+                    }
+                    
+                }
 
                 // Adding a new IceCream object based on the option
                 IceCream iceCream;
