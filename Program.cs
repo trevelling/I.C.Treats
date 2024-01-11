@@ -8,6 +8,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Drawing;
 using System.Globalization;
 using S10258591_PRG2Assignment;
 
@@ -18,7 +19,8 @@ namespace IceCreamShop
         static void Main(string[] args)
         {
             //Basic Features
-     
+            Queue<PointCard> pointCardGold = new Queue<PointCard>();
+            Queue<PointCard> pointCardRegular = new Queue<PointCard>();
             List<Customer> customerList = new List<Customer>();
             initCustomers("customers.csv", customerList);
 
