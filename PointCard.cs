@@ -68,6 +68,7 @@ namespace S10258591_PRG2Assignment
                 }
             }
         }
+        //change
         public void Punch()
         {
             Points++;
