@@ -218,12 +218,9 @@ namespace IceCreamShop
                     {
                         break;
                     }
-                    else
-                    {
-                        Topping toppings = new Topping(topping);
-                        toppingList.Add(toppings);
-                    }
-                    
+                   
+                    Topping toppings = new Topping(topping);
+                    toppingList.Add(toppings);
                 }
 
                 // Adding a new IceCream object based on the option
@@ -255,6 +252,9 @@ namespace IceCreamShop
                 Console.Write("Would you like to add another ice cream to the order? [Y/N]: ");
                 string addMoreIceCreamsInput = Console.ReadLine().ToLower();
                 addMoreIceCreams = addMoreIceCreamsInput == "y"; //if y sets to true, otherwise false
+
+
+
             }
         }
     }

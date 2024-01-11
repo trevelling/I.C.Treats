@@ -65,7 +65,9 @@ namespace S10258591_PRG2Assignment
                     {
                         Console.WriteLine("Order placed in the gold members order queue.");
                     }
-
+                }
+            }
+        }
 
         static void Punch()
         {
