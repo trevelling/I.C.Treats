@@ -20,25 +20,26 @@ namespace IceCreamShop
         {
             Id = id;
             TimeReceived = timeReceived;
+            IceCreamList = new List<IceCream>();
         }
 
-        static void ModifyIceCream(int icecream)
+        public void ModifyIceCream(int icecream)
         {
-
-        }
-
-        static void AddIceCream(IceCream iceCream)
-        {
-
             
         }
 
-        static void DeleteIceCream(int index)
+        public void AddIceCream(IceCream iceCream)
+        {
+            IceCreamList.Add(iceCream);
+            
+        }
+
+        public void DeleteIceCream(int index)
         {
            
         }
 
-        static double CalculateTotal()
+        public double CalculateTotal()
         {
             double total = 0;
             return total;

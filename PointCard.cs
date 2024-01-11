@@ -40,46 +40,32 @@ namespace S10258591_PRG2Assignment
 
         public void AddPoints(int points)
         {
-            if (points > 0)
-            {
-                Points += points;
-            }
-            if (Tier != "Gold")
-            {
-                if (Tier != "Silver")
-                {
-                    if (Points >= 50)
-                    {
-                        Tier = "Silver";
-                    }
-                    else if (Points >= 100)
-                    {
-                        Tier = "Gold";
-                    }
-                }
-                else
-                {
-                    if (Points >= 150)
-                    {
-                        Tier = "Gold";
-                    }
-                }
-            }
-        
-            
+            Points += points;
         }
 
         public void RedeemPoints(int points)
         {
             if (Points >= points)
             {
-                Points -= points;
-            }
+                // Only silver and gold members can redeem points
+                if (Tier.ToLower() == "silver" || Tier.ToLower() == "gold")
+                {
+                    double redemptionAmount = points * 0.02;
+
+                    // If the member is gold, place the order in the special gold members order queue
+                    if (Tier.ToLower() == "gold")
+                    {
+                        Console.WriteLine("Order placed in the gold members order queue.");
+                    }
+
+        static void RedeemPoints(int points)
+        {
+
         }
 
-        public void Punch()
+        static void Punch()
         {
-            PunchCard++;
+
         }
 
         public override string ToString()
