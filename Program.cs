@@ -42,7 +42,7 @@ namespace IceCreamShop
                         }
                         else if (option == 2)
                         {
-                            // BRAYDEN) List all current orders
+                            DisplayAllCurrentOrders();
                         }
                         else if (option == 3)
                         {
@@ -55,11 +55,19 @@ namespace IceCreamShop
                         }
                         else if (option == 5)
                         {
-                            Console.WriteLine('b');
+                            DisplayOrderDetails();
                         }
                         else if (option == 6)
                         {
-                            Console.WriteLine("Sdsds");
+                            ModifyOrderDetails();
+                        }
+                        else if (option == 7) // Advanced Option (a)
+                        {
+                            ProcessOrderAndCheckout();
+                        }
+                        else if (option == 8) // Advanced Option (b)
+                        {
+                            DisplayChargess();
                         }
                         else
                         {
@@ -103,6 +111,9 @@ namespace IceCreamShop
             Console.WriteLine("-----------------------------------------");
             Console.WriteLine("");
         }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Tevel's Methods)
 
         static void initCustomers(string filePath, List<Customer> customers)
         {
@@ -461,5 +472,35 @@ namespace IceCreamShop
             }
         }
 
+        static void ProcessOrderAndCheckout()
+        {
+
+        }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Brayden's Methods)
+
+        static void DisplayAllCurrentOrders()
+        {
+
+        }
+
+        static void DisplayOrderDetails()
+        {
+
+        }
+
+        static void ModifyOrderDetails()
+        {
+
+        }
+
+        static void DisplayChargess()
+        {
+
+        }
+
     }
 }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
