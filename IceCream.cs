@@ -8,18 +8,12 @@ namespace IceCreamShop
 {
     abstract class IceCream
     {
-        public string Option { get; private set; }
-        public int Scoops { get; private set; }
-        public List<Flavour> Flavours { get; private set; }
-        public List<Topping> Toppings { get; private set; }
+        public string Option { get; set; }
+        public int Scoops { get; set; }
+        public List<Flavour> Flavours { get; set; }
+        public List<Topping> Toppings { get; set; }
 
-        public IceCream()
-        {
-            Option = string.Empty;
-            Scoops = 0;
-            Flavours = new List<Flavour>();
-            Toppings = new List<Topping>();
-        } // Default Constructor
+        public IceCream() { } // Default Constructor
 
         public IceCream(string option, int scoops, List<Flavour> flavours, List<Topping> toppings)
         {
