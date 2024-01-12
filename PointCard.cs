@@ -9,9 +9,9 @@ namespace S10258591_PRG2Assignment
 {
     class PointCard
     {
-        public int Points { get; private set; }
-        public int PunchCard { get; private set; }
-        public string Tier { get; private set; }
+        public int Points { get; set; }
+        public int PunchCard { get; set; }
+        public string Tier { get; set; }
 
         public PointCard()
         {

@@ -23,7 +23,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"null";
+            return $"{Type} : {Quantity}";
         }
     }
 }

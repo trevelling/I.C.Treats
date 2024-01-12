@@ -58,7 +58,15 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"null";
+            var flavourQuantities = Flavours
+                .GroupBy(flavour => flavour.Type)  // Group by flavor type
+                .Select(group => $"{group.Key} : {group.Sum(flavour => flavour.Quantity)}");
+
+            string flavourString = string.Join(", ", flavourQuantities);
+            string toppingString = string.Join(", ", Toppings.Select(topping => topping.ToString()));
+
+            string result = $"A {Option}-IceCream with {Scoops} scoops, Flavours: [{flavourString}], Toppings: [{toppingString}]";
+            return result;
         }
     }
 }
