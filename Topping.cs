@@ -8,7 +8,7 @@ namespace IceCreamShop
 {
     class Topping
     {
-        public string Type { get; private set; }
+        public string Type { get; set; }
 
         public Topping()
         {
@@ -22,7 +22,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"Type: {Type}";
+            return $"{Type}";
         }
     }
 }

@@ -225,15 +225,25 @@ namespace IceCreamShop
             try
             {
                 DisplayAllCustomers(customers);
+                Console.WriteLine("");
 
                 Console.Write("Please select a customer: ");
                 int customerIndex = Convert.ToInt32(Console.ReadLine()) - 1; // Adjusted to match the index
+                Console.WriteLine("");
 
                 // Creating a new Order for the customer selected
                 Order newOrder = new Order(customerIndex, DateTime.Now);
 
+
                 // Linking the new order to the customer's current order
                 customers[customerIndex].CurrentOrder = newOrder;
+
+                // Initialize OrderHistory if it's null
+                if (customers[customerIndex].OrderHistory == null)
+                {
+                    customers[customerIndex].OrderHistory = new List<Order>();
+                }
+
 
                 // Initialize flag for adding more ice creams
                 bool addMoreIceCreams = true;
@@ -245,6 +255,7 @@ namespace IceCreamShop
                         Console.WriteLine("Choose your option!");
                         Console.Write("[Cup] [Cone] [Waffle]: ");
                         option = Console.ReadLine().ToLower();
+                        Console.WriteLine("");
 
                         if (option.ToLower() != "cup" && option.ToLower() != "cone" && option.ToLower() != "waffle")
                         {
@@ -264,6 +275,7 @@ namespace IceCreamShop
                             Console.WriteLine("Choose your waffle flavour!");
                             Console.Write("[Plain] [Red Velvet] [Charcoal] [Pandan]: ");
                             validWaffleFlavour = Console.ReadLine().ToLower();
+                            Console.WriteLine("");
 
                             if (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
                                 validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan")
@@ -284,6 +296,7 @@ namespace IceCreamShop
                         Console.WriteLine("Choose the no. of scoops!");
                         Console.Write("[1] [2] [3]: ");
                         scoops = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("");
 
                         if (scoops == 1 || scoops == 2 || scoops == 3)
                         {
@@ -307,6 +320,7 @@ namespace IceCreamShop
                             Console.Write("Would you like premium [y/n]: ");
                             string userInput = Console.ReadLine().ToLower();
                             bool premium = userInput.ToLower() == "y";
+                            Console.WriteLine("");
 
                             if (userInput != "y" && userInput != "n")
                             {
@@ -319,17 +333,18 @@ namespace IceCreamShop
 
                             if (premium)
                             {
-                                Console.Write("[Durian] [Ube] [Sea Salt]: \n");
+                                Console.Write("[Durian] [Ube] [Sea Salt]: ");
                             }
                             else
                             {
-                                Console.Write("[Vanilla] [Chocolate] [Strawberry]: \n");
+                                Console.Write("[Vanilla] [Chocolate] [Strawberry]: ");
                             }
 
                             string flavour = Console.ReadLine().ToLower();
+                            Console.WriteLine("");
 
                             // Check if the entered flavor is valid
-                            if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "sea salt")) ||
+                            if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
                                 (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" || flavour.ToLower() == "strawberry")))
                             {
                                 validFlavour = true;
@@ -351,7 +366,7 @@ namespace IceCreamShop
 
                         do
                         {
-                            Console.WriteLine("What topping would you like [Sprinkles, Mochi, Sago, Oreos] [\"N\" to finish]: \n");
+                            Console.Write("What topping would you like [Sprinkles, Mochi, Sago, Oreos] [\"N\" to finish]: ");
                             string topping = Console.ReadLine().ToLower();
 
                             if (topping == "n")
@@ -377,7 +392,7 @@ namespace IceCreamShop
                     // Adding a new IceCream object based on the option
                     IceCream iceCream;
 
-                    if (option.Trim() == "cup")
+                    if (option.ToLower().Trim() == "cup")
                     {
                         iceCream = new Cup(option, scoops, flavourList, toppingList);
                     }
@@ -407,7 +422,24 @@ namespace IceCreamShop
                         pointCardRegular.Enqueue(customers[customerIndex].Rewards);
                     }
 
-                    Console.WriteLine($"A new {option}-IceCream with {scoops} scoop(s) was added!\n");
+                    // Adding the new order to the customer's OrderHistory
+                    customers[customerIndex].OrderHistory.Add(newOrder);
+
+                    Console.WriteLine("");
+
+                    foreach (var order in customers[customerIndex].OrderHistory)
+                    {
+                        Console.WriteLine($"Order ID: {order.Id}, Time Received: {order.TimeReceived}");
+                        Console.WriteLine("");
+                        Console.WriteLine("ORDER:");
+
+                        foreach (var iceCreams in order.IceCreamList)
+                        {
+                            Console.WriteLine(iceCreams);
+                        }
+                    }
+
+                    Console.WriteLine("");
 
                     // Prompting user if they want to add another ice cream
                     Console.Write("Would you like to add another ice cream to the order? [Y/N]: ");
