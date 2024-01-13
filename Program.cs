@@ -19,11 +19,14 @@ namespace IceCreamShop
     {
         static void Main(string[] args)
         {
+            
             try
             {
                 // Basic Features
                 Queue<PointCard> pointCardGold = new Queue<PointCard>();
                 Queue<PointCard> pointCardRegular = new Queue<PointCard>();
+                List<Order> goldOrders = new List<Order>();
+                List<Order> regularOrders = new List<Order>();
                 List<Customer> customerList = new List<Customer>();
                 initCustomers("customers.csv", customerList);
 
@@ -40,9 +43,12 @@ namespace IceCreamShop
                             // 1) List all customers
                             DisplayAllCustomers(customerList);
                         }
-                        else if (option == 2)
+                        else if (option == 2) //Brayden
                         {
-                            DisplayAllCurrentOrders();
+                            Console.WriteLine("Gold Membership Queue\r\n------------------------------");
+                            DisplayAllCurrentOrders(goldOrders);
+                            Console.WriteLine("Regular Membership Queue\r\n------------------------------");
+                            DisplayAllCurrentOrders(regularOrders);
                         }
                         else if (option == 3)
                         {
@@ -51,13 +57,13 @@ namespace IceCreamShop
                         }
                         else if (option == 4)
                         {
-                            CreateNewOrder(customerList, pointCardGold, pointCardRegular);
+                            CreateNewOrder(customerList, pointCardGold, pointCardRegular, goldOrders, regularOrders);
                         }
-                        else if (option == 5)
+                        else if (option == 5) //Brayden
                         {
                             DisplayOrderDetails();
                         }
-                        else if (option == 6)
+                        else if (option == 6) //Brayden
                         {
                             ModifyOrderDetails();
                         }
@@ -231,7 +237,7 @@ namespace IceCreamShop
             }
         }
 
-        static void CreateNewOrder(List<Customer> customers, Queue<PointCard> pointCardGold, Queue<PointCard> pointCardRegular)
+        static void CreateNewOrder(List<Customer> customers, Queue<PointCard> pointCardGold, Queue<PointCard> pointCardRegular, List<Order> goldOrders, List<Order> regularOrders)
         {
             try
             {
@@ -426,10 +432,12 @@ namespace IceCreamShop
                     if (customers[customerIndex].Rewards.Tier == "Gold")
                     {
                         Console.WriteLine("Order placed in the gold members order queue.");
+                        goldOrders.Add(newOrder);
                         pointCardGold.Enqueue(customers[customerIndex].Rewards);
                     }
                     else
                     {
+                        regularOrders.Add(newOrder);
                         pointCardRegular.Enqueue(customers[customerIndex].Rewards);
                     }
 
@@ -457,6 +465,7 @@ namespace IceCreamShop
                     string addMoreIceCreamsInput = Console.ReadLine().ToLower();
                     addMoreIceCreams = addMoreIceCreamsInput == "y"; //if y sets to true, otherwise false
                 }
+
             }
             catch (FormatException ex)
             {
@@ -480,9 +489,28 @@ namespace IceCreamShop
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // (Brayden's Methods)
 
-        static void DisplayAllCurrentOrders()
+        static void DisplayAllCurrentOrders(List<Order> orders)
         {
-
+            int i = 1;
+            foreach(Order order in orders)
+            {   
+                Console.WriteLine($"Order [{i}]");
+                int j = 1;
+                List<IceCream> IceCreamList = order.IceCreamList;
+                foreach(IceCream iceCream in IceCreamList)
+                {
+                    Console.WriteLine($"Ice Cream [{j}]");
+                    List<Flavour> FlavourList = iceCream.Flavours;
+                    List<Topping> ToppingList = iceCream.Toppings;
+                    foreach (Flavour flavour in FlavourList)
+                    {
+                        Console.WriteLine($"{flavour.Quantity} scoops of {flavour.Type}");
+                    }
+                    Console.WriteLine($"Topped with: {String.Join(", ", ToppingList)}");
+                    j++;
+                }
+                i++;
+            }
         }
 
         static void DisplayOrderDetails()
