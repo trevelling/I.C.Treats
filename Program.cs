@@ -12,6 +12,8 @@ using System.Drawing;
 using System.Globalization;
 using S10258591_PRG2Assignment;
 using static System.Formats.Asn1.AsnWriter;
+using System.Reflection.Metadata.Ecma335;
+using System.Xml.Linq;
 
 namespace IceCreamShop
 {
@@ -47,7 +49,7 @@ namespace IceCreamShop
                         {
                             Console.WriteLine("Gold Membership Queue\r\n------------------------------");
                             DisplayAllCurrentOrders(goldOrders);
-                            Console.WriteLine("Regular Membership Queue\r\n------------------------------");
+                            Console.WriteLine("\r\nRegular Membership Queue\r\n------------------------------");
                             DisplayAllCurrentOrders(regularOrders);
                         }
                         else if (option == 3)
@@ -488,16 +490,13 @@ namespace IceCreamShop
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // (Brayden's Methods)
-
-        static void DisplayAllCurrentOrders(List<Order> orders)
+        static void DisplayOrder(Order order)
         {
-            int i = 1;
-            foreach(Order order in orders)
-            {   
-                Console.WriteLine($"Order [{i}]");
+            if (order != null)
+            {
                 int j = 1;
                 List<IceCream> IceCreamList = order.IceCreamList;
-                foreach(IceCream iceCream in IceCreamList)
+                foreach (IceCream iceCream in IceCreamList)
                 {
                     Console.WriteLine($"  Ice Cream [{j}]");
                     List<Flavour> FlavourList = iceCream.Flavours;
@@ -509,6 +508,17 @@ namespace IceCreamShop
                     Console.WriteLine($"    Topped with: {String.Join(", ", ToppingList)}");
                     j++;
                 }
+            }
+            
+        }
+        static void DisplayAllCurrentOrders(List<Order> orders)
+        {
+            Console.WriteLine(orders.Count);
+            int i = 1;
+            foreach(Order order in orders)
+            {   
+                Console.WriteLine($"Order [{i}]");
+                DisplayOrder(order);
                 i++;
             }
         }
@@ -516,7 +526,69 @@ namespace IceCreamShop
         static void DisplayOrderDetails(List<Customer> customerList)
         {
             DisplayAllCustomers(customerList);
+            bool valid = false;
+            int option = 0;
+            while (!valid)
+            {
+                Console.Write("Enter index of customer to select: ");
+                string input = Console.ReadLine();
+                try
+                {
+                    option = int.Parse(input);
+                    if (option < 1 || option > customerList.Count)
+                    {
+                        valid = false;
+                        Console.WriteLine("Index not in range! Try again.");
+                        continue;
+                    }
+                    else
+                    {
+                        valid= true;
+                    }
+                }
+                catch (FormatException) { Console.WriteLine("Invalid input. Please enter a valid number."); }
+                catch (OverflowException) { Console.WriteLine("Input is not a 32-bit signed integer. Please enter a 32-bit signed integer."); }
+                catch (Exception ex) { Console.WriteLine($"An unexpected error occurred: {ex.Message}"); }
+            }
+            Customer customer = customerList[option-1];
+            try
+            {
+                List<Order> orderHistory = customer.OrderHistory;
+                Order currentOrder = customer.CurrentOrder;
+                if (currentOrder == null || orderHistory == null) 
+                {
+                    Console.WriteLine("No data found. ");
+                    return;
+                }
+                Console.WriteLine("Current Order\r\n-------------------");
+                Console.WriteLine("Date Received: " + currentOrder.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
+                DisplayOrder(currentOrder);
+                Console.WriteLine("Past Orders\r\n-------------------");
+                int i = 1;
+                foreach (Order order in orderHistory)
+                {
+                    Console.WriteLine($"Order [{i}]");
+                    Console.WriteLine("Date Received:  " + order.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
+                    if (order.TimeFulfilled.HasValue)
+                    {
+                        DateTime? time = order.TimeFulfilled;
+                        Console.WriteLine("Date Fulfilled: " + time?.ToString("dd MMM yyyy, HH:mm"));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not yet fulfilled");
+                    }
+                    DisplayOrder(order);
+                    i++;
+                }
+            }
+            catch (NullReferenceException)
+            {
+                Console.WriteLine("No customer data found.");
+            }
+            
         }
+        
 
         static void ModifyOrderDetails()
         {
