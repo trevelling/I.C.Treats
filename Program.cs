@@ -25,8 +25,8 @@ namespace IceCreamShop
             
             try
             {
-                Queue<Order> pointCardGold = new Queue<Order>();
-                Queue<Order> pointCardRegular = new Queue<Order>();
+                Queue<Order> pointCardGold = new Queue<Order>(); //LIST OF ORDERS FOR GOLD MEMBERS
+                Queue<Order> pointCardRegular = new Queue<Order>(); //LIST OF ORDERS FOR REGULAR MEMBERS
                 List<Customer> customerList = new List<Customer>();
                 initCustomers("customers.csv", customerList);
 
@@ -43,14 +43,12 @@ namespace IceCreamShop
                             // 1) List all customers [Tevel]
                             DisplayAllCustomers(customerList);
                         }
-                        else if (option == 2) //Brayden
+                        else if (option == 2)                          
                         {
                             Console.WriteLine("Gold Membership Queue\r\n------------------------------");
-                            DisplayAllCurrentOrders(goldOrders);
+                            DisplayAllCurrentOrders(pointCardGold);
                             Console.WriteLine("\r\nRegular Membership Queue\r\n------------------------------");
-                            DisplayAllCurrentOrders(regularOrders);
-                            // 1) List all current orders [Brayden]
-                            DisplayAllCurrentOrders();
+                            DisplayAllCurrentOrders(pointCardRegular);
                         }
                         else if (option == 3)
                         {
@@ -62,11 +60,11 @@ namespace IceCreamShop
                             // Creates a customer's order [Tevel]
                             CreateNewOrder(customerList, pointCardGold, pointCardRegular);
                         }
-                        else if (option == 5) //Brayden
+                        else if (option == 5) 
                         {
                             DisplayOrderDetails(customerList);
                         }
-                        else if (option == 6) //Brayden
+                        else if (option == 6) 
                         {
                             // Modify order details [Brayden]
                             ModifyOrderDetails();
@@ -555,9 +553,8 @@ namespace IceCreamShop
             }
             
         }
-        static void DisplayAllCurrentOrders(List<Order> orders)
+        static void DisplayAllCurrentOrders(Queue<Order> orders)
         {
-            Console.WriteLine(orders.Count);
             int i = 1;
             foreach(Order order in orders)
             {   
