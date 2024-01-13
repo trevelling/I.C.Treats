@@ -3,7 +3,8 @@
 // Student Name : Tevel Sho
 // Partner Name : Brayden Saga
 //==========================================================
-//Random comment
+
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -24,11 +25,8 @@ namespace IceCreamShop
             
             try
             {
-                // Basic Features
-                Queue<PointCard> pointCardGold = new Queue<PointCard>();
-                Queue<PointCard> pointCardRegular = new Queue<PointCard>();
-                List<Order> goldOrders = new List<Order>();
-                List<Order> regularOrders = new List<Order>();
+                Queue<Order> pointCardGold = new Queue<Order>();
+                Queue<Order> pointCardRegular = new Queue<Order>();
                 List<Customer> customerList = new List<Customer>();
                 initCustomers("customers.csv", customerList);
 
@@ -42,7 +40,7 @@ namespace IceCreamShop
 
                         if (option == 1)
                         {
-                            // 1) List all customers
+                            // 1) List all customers [Tevel]
                             DisplayAllCustomers(customerList);
                         }
                         else if (option == 2) //Brayden
@@ -51,15 +49,18 @@ namespace IceCreamShop
                             DisplayAllCurrentOrders(goldOrders);
                             Console.WriteLine("\r\nRegular Membership Queue\r\n------------------------------");
                             DisplayAllCurrentOrders(regularOrders);
+                            // 1) List all current orders [Brayden]
+                            DisplayAllCurrentOrders();
                         }
                         else if (option == 3)
                         {
-                            // Register new customers
+                            // Register new customers [Tevel]
                             RegisterCustomers(customerList);
                         }
                         else if (option == 4)
                         {
-                            CreateNewOrder(customerList, pointCardGold, pointCardRegular, goldOrders, regularOrders);
+                            // Creates a customer's order [Tevel]
+                            CreateNewOrder(customerList, pointCardGold, pointCardRegular);
                         }
                         else if (option == 5) //Brayden
                         {
@@ -67,15 +68,25 @@ namespace IceCreamShop
                         }
                         else if (option == 6) //Brayden
                         {
+                            // Modify order details [Brayden]
                             ModifyOrderDetails();
                         }
-                        else if (option == 7) // Advanced Option (a)
+                        else if (option == 7) 
                         {
-                            ProcessOrderAndCheckout();
+                            // Advanced Option (a) - Process an order and checkout [Tevel]
+                            ProcessOrderAndCheckout(pointCardGold, pointCardRegular);
                         }
-                        else if (option == 8) // Advanced Option (b)
+                        else if (option == 8)
                         {
+                            // Advanced Option (b) - Display monthly charged amounts breakdown & total charged amounts for the year [Brayden]
                             DisplayChargess();
+                        }
+                        else if (option == 0)
+                        {
+                            Console.WriteLine("Exiting I.C.Treats....");
+                            Console.WriteLine("See you next time!      :)");
+                            Console.ReadKey();
+                            break;
                         }
                         else
                         {
@@ -115,6 +126,8 @@ namespace IceCreamShop
             Console.WriteLine("[4] Create a customer’s order");
             Console.WriteLine("[5] Display order details of a customer");
             Console.WriteLine("[6] Modify order details");
+            Console.WriteLine("[7] Process an order and checkout");
+            Console.WriteLine("[8] Display monthly charges breakdown");
             Console.WriteLine("[0] Exit Menu");
             Console.WriteLine("-----------------------------------------");
             Console.WriteLine("");
@@ -239,7 +252,7 @@ namespace IceCreamShop
             }
         }
 
-        static void CreateNewOrder(List<Customer> customers, Queue<PointCard> pointCardGold, Queue<PointCard> pointCardRegular, List<Order> goldOrders, List<Order> regularOrders)
+        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular)
         {
             try
             {
@@ -262,7 +275,6 @@ namespace IceCreamShop
                 {
                     customers[customerIndex].OrderHistory = new List<Order>();
                 }
-
 
                 // Initialize flag for adding more ice creams
                 bool addMoreIceCreams = true;
@@ -434,13 +446,12 @@ namespace IceCreamShop
                     if (customers[customerIndex].Rewards.Tier == "Gold")
                     {
                         Console.WriteLine("Order placed in the gold members order queue.");
-                        goldOrders.Add(newOrder);
-                        pointCardGold.Enqueue(customers[customerIndex].Rewards);
+                        pointCardGold.Enqueue(newOrder);
+                       
                     }
                     else
                     {
-                        regularOrders.Add(newOrder);
-                        pointCardRegular.Enqueue(customers[customerIndex].Rewards);
+                        pointCardRegular.Enqueue(newOrder);
                     }
 
                     // Adding the new order to the customer's OrderHistory
@@ -483,9 +494,42 @@ namespace IceCreamShop
             }
         }
 
-        static void ProcessOrderAndCheckout()
+        static void ProcessOrderAndCheckout(Queue<Order> pointCardGold, Queue<Order> pointCardRegular)
         {
+            try
+            {
+                // Check if there are any orders in both queues
+                if (pointCardGold.Count == 0 && pointCardRegular.Count == 0)
+                {
+                    Console.WriteLine("No orders to process.");
+                    return;
+                }
 
+                Order processedOrder;
+
+                // Dequeue the first order based on the customer's tier (Gold first)
+                if (pointCardGold.Count > 0)
+                {
+                    processedOrder = pointCardGold.Dequeue();
+                    Console.WriteLine("Processing order from the gold members order queue...");
+                }
+                else
+                {
+                    processedOrder = pointCardRegular.Dequeue();
+                    Console.WriteLine("Processing order from the regular members order queue...");
+                }
+
+                // Display all ice creams in the processed order
+                Console.WriteLine("Ice Creams in the processed order:");
+                foreach (var iceCream in processedOrder.IceCreamList)
+                {
+                    Console.WriteLine(iceCream);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
         }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -600,7 +644,8 @@ namespace IceCreamShop
 
         }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+    
     }
+
 }
 
