@@ -61,7 +61,7 @@ namespace IceCreamShop
                         }
                         else if (option == 5) //Brayden
                         {
-                            DisplayOrderDetails();
+                            DisplayOrderDetails(customerList);
                         }
                         else if (option == 6) //Brayden
                         {
@@ -188,7 +188,7 @@ namespace IceCreamShop
 
                 for (int i = 0; i < customers.Count; i++)
                 {
-                    Console.WriteLine($"[{i + 1}] {customers[i].ToString()}");
+                    Console.WriteLine($"{$"[{i + 1}]", -5}{customers[i].ToString()}");
                 }
             }
             catch (Exception ex)
@@ -499,23 +499,23 @@ namespace IceCreamShop
                 List<IceCream> IceCreamList = order.IceCreamList;
                 foreach(IceCream iceCream in IceCreamList)
                 {
-                    Console.WriteLine($"Ice Cream [{j}]");
+                    Console.WriteLine($"  Ice Cream [{j}]");
                     List<Flavour> FlavourList = iceCream.Flavours;
                     List<Topping> ToppingList = iceCream.Toppings;
                     foreach (Flavour flavour in FlavourList)
                     {
-                        Console.WriteLine($"{flavour.Quantity} scoops of {flavour.Type}");
+                        Console.WriteLine($"    {flavour.Quantity} scoops of {flavour.Type}");
                     }
-                    Console.WriteLine($"Topped with: {String.Join(", ", ToppingList)}");
+                    Console.WriteLine($"    Topped with: {String.Join(", ", ToppingList)}");
                     j++;
                 }
                 i++;
             }
         }
 
-        static void DisplayOrderDetails()
+        static void DisplayOrderDetails(List<Customer> customerList)
         {
-
+            DisplayAllCustomers(customerList);
         }
 
         static void ModifyOrderDetails()
