@@ -289,7 +289,7 @@ namespace IceCreamShop
                             Console.WriteLine("");
 
                             if (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
-                                validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan")
+                                validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" && validWaffleFlavour.ToLower() != "redvelvet")
                             {
                                 Console.WriteLine("Invalid waffle flavour. Please enter a valid waffle flavour.");
                             }
@@ -499,8 +499,8 @@ namespace IceCreamShop
         {
 
         }
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     }
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
