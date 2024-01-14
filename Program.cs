@@ -14,6 +14,8 @@ using System.Globalization;
 using S10258591_PRG2Assignment;
 using static System.Formats.Asn1.AsnWriter;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.ExceptionServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Xml.Linq;
 
 namespace IceCreamShop
@@ -25,8 +27,12 @@ namespace IceCreamShop
             
             try
             {
-                Queue<Order> pointCardGold = new Queue<Order>(); //LIST OF ORDERS FOR GOLD MEMBERS
-                Queue<Order> pointCardRegular = new Queue<Order>(); //LIST OF ORDERS FOR REGULAR MEMBERS
+                //LIST OF ORDERS FOR GOLD MEMBERS
+                Queue<Order> pointCardGold = new Queue<Order>();
+
+                //LIST OF ORDERS FOR REGULAR MEMBERS
+                Queue<Order> pointCardRegular = new Queue<Order>();
+           
                 List<Customer> customerList = new List<Customer>();
                 initCustomers("customers.csv", customerList);
 
@@ -72,7 +78,7 @@ namespace IceCreamShop
                         else if (option == 7) 
                         {
                             // Advanced Option (a) - Process an order and checkout [Tevel]
-                            ProcessOrderAndCheckout(pointCardGold, pointCardRegular);
+                            ProcessOrderAndCheckout(customerList, pointCardGold, pointCardRegular);
                         }
                         else if (option == 8)
                         {
@@ -94,7 +100,7 @@ namespace IceCreamShop
 
                     catch (FormatException)
                     {
-                        Console.WriteLine("Invalid input. Please enter a valid number.");
+                        Console.WriteLine("Invalid input. Please enter a valid number [0-8].");
                     }
                     catch (OverflowException)
                     {
@@ -257,13 +263,12 @@ namespace IceCreamShop
                 DisplayAllCustomers(customers);
                 Console.WriteLine("");
 
-                Console.Write("Please select a customer: ");
+                Console.Write("Please select a customer No. : ");
                 int customerIndex = Convert.ToInt32(Console.ReadLine()) - 1; // Adjusted to match the index
                 Console.WriteLine("");
 
                 // Creating a new Order for the customer selected
-                Order newOrder = new Order(customerIndex, DateTime.Now);
-
+                Order newOrder = new Order(customers[customerIndex].MemberID, DateTime.Now);
 
                 // Linking the new order to the customer's current order
                 customers[customerIndex].CurrentOrder = newOrder;
@@ -276,6 +281,7 @@ namespace IceCreamShop
 
                 // Initialize flag for adding more ice creams
                 bool addMoreIceCreams = true;
+
                 while (addMoreIceCreams)
                 {
                     string option;
@@ -452,29 +458,42 @@ namespace IceCreamShop
                         pointCardRegular.Enqueue(newOrder);
                     }
 
-                    // Adding the new order to the customer's OrderHistory
-                    customers[customerIndex].OrderHistory.Add(newOrder);
-
-                    Console.WriteLine("");
-
-                    foreach (var order in customers[customerIndex].OrderHistory)
-                    {
-                        Console.WriteLine($"Order ID: {order.Id}, Time Received: {order.TimeReceived}");
-                        Console.WriteLine("");
-                        Console.WriteLine("ORDER:");
-
-                        foreach (var iceCreams in order.IceCreamList)
-                        {
-                            Console.WriteLine(iceCreams);
-                        }
-                    }
-
                     Console.WriteLine("");
 
                     // Prompting user if they want to add another ice cream
                     Console.Write("Would you like to add another ice cream to the order? [Y/N]: ");
                     string addMoreIceCreamsInput = Console.ReadLine().ToLower();
-                    addMoreIceCreams = addMoreIceCreamsInput == "y"; //if y sets to true, otherwise false
+                    addMoreIceCreams = addMoreIceCreamsInput == "y"; // if y sets to true, otherwise false
+                }
+
+                // Adding the new order to the customer's OrderHistory only if it's not already added
+                if (!customers[customerIndex].OrderHistory.Contains(newOrder))
+                {
+                    customers[customerIndex].OrderHistory.Add(newOrder);
+                }
+
+                Console.WriteLine("");
+
+                if (customers[customerIndex].OrderHistory.Count > 0)
+                {
+                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
+
+                    for (int orderIndex = 0; orderIndex < customers[customerIndex].OrderHistory.Count; orderIndex++)
+                    {
+                        var order = customers[customerIndex].OrderHistory[orderIndex];
+
+                        Console.WriteLine($"Order ID: {order.Id}, Time Received: {order.TimeReceived}");
+                        Console.WriteLine("");
+                        Console.WriteLine("ORDER:");
+
+                        for (int i = 0; i < order.IceCreamList.Count; i++)
+                        {
+                            Console.WriteLine($"IceCream [{i + 1}]: {order.IceCreamList[i]}");
+                        }
+                    }
+
+                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("");
                 }
 
             }
@@ -492,7 +511,7 @@ namespace IceCreamShop
             }
         }
 
-        static void ProcessOrderAndCheckout(Queue<Order> pointCardGold, Queue<Order> pointCardRegular)
+        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular)
         {
             try
             {
@@ -503,25 +522,54 @@ namespace IceCreamShop
                     return;
                 }
 
-                Order processedOrder;
+                Dictionary<int, List<Order>> customerOrders = new Dictionary<int, List<Order>>();
 
-                // Dequeue the first order based on the customer's tier (Gold first)
-                if (pointCardGold.Count > 0)
+                // Dequeue all orders from the gold members order queue
+                while (pointCardGold.Count > 0)
                 {
-                    processedOrder = pointCardGold.Dequeue();
-                    Console.WriteLine("Processing order from the gold members order queue...");
-                }
-                else
-                {
-                    processedOrder = pointCardRegular.Dequeue();
-                    Console.WriteLine("Processing order from the regular members order queue...");
+                    Order currentOrder = pointCardGold.Dequeue();
+                    ProcessOrder(currentOrder, customerOrders);
                 }
 
-                // Display all ice creams in the processed order
-                Console.WriteLine("Ice Creams in the processed order:");
-                foreach (var iceCream in processedOrder.IceCreamList)
+                // Dequeue all orders from the regular members order queue
+                while (pointCardRegular.Count > 0)
                 {
-                    Console.WriteLine(iceCream);
+                    Order currentOrder = pointCardRegular.Dequeue();
+                    ProcessOrder(currentOrder, customerOrders);
+                }
+
+                // Display all ice creams in all processed orders
+                Console.WriteLine("Ice Creams in all processed orders:");
+
+                foreach (var customerOrder in customerOrders)
+                {
+                    int memberId = customerOrder.Key;
+                    List<Order> orders = customerOrder.Value;
+
+                    Console.WriteLine($"Member ID: {memberId}");
+                    foreach (var order in orders)
+                    {
+                        foreach (var iceCream in order.IceCreamList)
+                        {
+                            Console.WriteLine(iceCream);
+                        }
+                    }
+                }
+
+                // Calculate and display the total bill amount for all orders combined
+                double totalBill = customerOrders.Values.SelectMany(orders => orders).Sum(order => order.CalculateTotal());
+                Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
+
+                // Display membership status and points of the customer (assuming all orders belong to the first customer for simplicity)
+                if (customerOrders.Count > 0)
+                {
+                    int firstCustomerId = customerOrders.Keys.First();
+                    if (customers.Any(c => c.MemberID == firstCustomerId))
+                    {
+                        Console.WriteLine($"Membership Status: {customers.First(c => c.MemberID == firstCustomerId).Rewards.Tier}");
+                        //double points = totalBill * 0.72;
+                        //Console.WriteLine($"Points: {customers.First(c => c.MemberID == firstCustomerId).Rewards.Points}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -530,8 +578,22 @@ namespace IceCreamShop
             }
         }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// (Brayden's Methods)
+        static void ProcessOrder(Order order, Dictionary<int, List<Order>> customerOrders)
+        {
+            // Add the order to the dictionary based on the customer's member ID
+            int memberId = order.Id; 
+            if (!customerOrders.ContainsKey(memberId))
+            {
+                customerOrders[memberId] = new List<Order>();
+            }
+
+            customerOrders[memberId].Add(order);
+        }
+
+
+
+        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // (Brayden's Methods)
         static void DisplayOrder(Order order)
         {
             if (order != null)
@@ -558,7 +620,7 @@ namespace IceCreamShop
             int i = 1;
             foreach(Order order in orders)
             {   
-                Console.WriteLine($"Order [{i}]");
+                Console.WriteLine($"Order No:[{i}]");
                 DisplayOrder(order);
                 i++;
             }
@@ -641,8 +703,5 @@ namespace IceCreamShop
 
         }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
     }
-
 }
-

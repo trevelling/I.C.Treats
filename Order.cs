@@ -42,6 +42,12 @@ namespace IceCreamShop
         public double CalculateTotal()
         {
             double total = 0;
+
+            foreach (var iceCream in IceCreamList)
+            {
+                total += iceCream.CalculatePrice();
+            }
+
             return total;
         }
 
