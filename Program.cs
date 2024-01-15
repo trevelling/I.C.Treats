@@ -444,10 +444,8 @@ namespace IceCreamShop
                         Console.WriteLine("Invalid option");
                         return;
                     }
-                    Console.WriteLine("Adding new ice cream (test)");
-                    newOrder.AddIceCream(iceCream);
 
-                    
+                    newOrder.AddIceCream(iceCream);
 
                     Console.WriteLine("");
 
@@ -485,7 +483,7 @@ namespace IceCreamShop
 
                     Console.WriteLine("---------------------------------------------------------------------------------------------------");
                     Console.WriteLine("");
-                    //Moved code to add order here.
+                    
                     if (customers[customerIndex].Rewards.Tier == "Gold")
                     {
                         Console.WriteLine("Order placed in the gold members order queue.");

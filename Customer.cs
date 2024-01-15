@@ -42,7 +42,7 @@ namespace IceCreamShop
 
             // Everytime a new order is created, gives a new Punch in the PunchCard
             Rewards.PunchCard += 1;
-            OrderHistory.Add(newOrder);
+            OrderHistory.Add(CurrentOrder);
             return newOrder;
         }
 
