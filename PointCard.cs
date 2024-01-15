@@ -51,10 +51,11 @@ namespace S10258591_PRG2Assignment
             }
         }//Tier of pointcard will never drop
 
-        public void RedeemPoints(int points)
+        public void RedeemPoints(int bill)
         {
-            double redemptionAmount = points * 0.02;
+
         }
+
         public void Punch()
         {
             Points++;
