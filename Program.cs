@@ -444,19 +444,10 @@ namespace IceCreamShop
                         Console.WriteLine("Invalid option");
                         return;
                     }
-
+                    Console.WriteLine("Adding new ice cream (test)");
                     newOrder.AddIceCream(iceCream);
 
-                    if (customers[customerIndex].Rewards.Tier == "Gold")
-                    {
-                        Console.WriteLine("Order placed in the gold members order queue.");
-                        pointCardGold.Enqueue(newOrder);
-                       
-                    }
-                    else
-                    {
-                        pointCardRegular.Enqueue(newOrder);
-                    }
+                    
 
                     Console.WriteLine("");
 
@@ -494,6 +485,18 @@ namespace IceCreamShop
 
                     Console.WriteLine("---------------------------------------------------------------------------------------------------");
                     Console.WriteLine("");
+                    //Moved code to add order here.
+                    if (customers[customerIndex].Rewards.Tier == "Gold")
+                    {
+                        Console.WriteLine("Order placed in the gold members order queue.");
+                        pointCardGold.Enqueue(newOrder);
+
+                    }
+                    else
+                    {
+                        pointCardRegular.Enqueue(newOrder);
+                        Console.WriteLine($"{pointCardRegular.Count} test, added new order");
+                    }
                 }
 
             }
@@ -509,6 +512,7 @@ namespace IceCreamShop
             {
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
+
         }
 
         static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular)
@@ -618,8 +622,10 @@ namespace IceCreamShop
         static void DisplayAllCurrentOrders(Queue<Order> orders)
         {
             int i = 1;
-            foreach(Order order in orders)
+            Console.WriteLine(orders.Count + "test");
+            foreach (Order order in orders)
             {   
+                
                 Console.WriteLine($"Order No:[{i}]");
                 DisplayOrder(order);
                 i++;
