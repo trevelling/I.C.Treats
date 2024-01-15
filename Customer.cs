@@ -49,7 +49,9 @@ namespace IceCreamShop
         public bool IsBirthday()
         {
             DateTime today = DateTime.Today;
-            if (today == DOB)
+
+            // Check if the month and day of today are equal to the month and day of the DOB
+            if (today.Month == DOB.Month && today.Day == DOB.Day)
             {
                 return true;
             }

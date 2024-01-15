@@ -452,9 +452,23 @@ namespace IceCreamShop
                     Console.WriteLine("");
 
                     // Prompting user if they want to add another ice cream
-                    Console.Write("Would you like to add another ice cream to the order? [Y/N]: ");
-                    string addMoreIceCreamsInput = Console.ReadLine().ToLower();
-                    addMoreIceCreams = addMoreIceCreamsInput == "y"; // if y sets to true, otherwise false
+                    bool validInput = false;
+                    while (!validInput)
+                    {
+                        Console.Write("Would you like to add another ice cream to the order? [Y/N]: ");
+                        string addMoreIceCreamsInput = Console.ReadLine().ToLower();
+
+                        if (addMoreIceCreamsInput == "y" || addMoreIceCreamsInput == "n")
+                        {
+                            addMoreIceCreams = addMoreIceCreamsInput == "y"; // if 'y', sets to true, otherwise false
+                            validInput = true; // Exit the loop as the input is valid
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
+                        }
+                    }
+
                 }
 
                 // Adding the new order to the customer's OrderHistory only if it's not already added
@@ -523,75 +537,90 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
 
-            //// Add the new order to the dictionary based on the customer's Member ID
-            // if (customerOrdersDictionary.ContainsKey(customers[customerIndex].MemberID))
-            // {
-            //     customerOrdersDictionary[customers[customerIndex].MemberID].Add(newOrder);
-            // }
-            // else
-            // {
-            //     // If the Member ID is not yet in the dictionary, create a new list with the order
-            //     customerOrdersDictionary[customers[customerIndex].MemberID] = new List<Order> { newOrder };
-            // }
-
         }
 
         static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, Dictionary<int, List<Order>> customerOrdersDictionary)
         {
             try
             {
+                // Initialize variables to track the most expensive ice cream price and discounted bill
+                double mostExpensiveIceCreamPrice = 0.00;
+                double discountedBill = 0.00;
+
                 // Process orders from the gold members order queue
                 while (pointCardGold.Count > 0)
                 {
-                    // Removes the first order from the pointCardGold Queue
                     Order currentOrder = pointCardGold.Dequeue();
-
-                    // For each dequeued order, it calls the ProcessOrder function to handle adding the order to the customerOrders dictionary.
                     ProcessOrder(currentOrder, customerOrdersDictionary);
                 }
 
                 // Process orders from the regular members order queue
                 while (pointCardRegular.Count > 0)
                 {
-                    // Removes the first order from the pointCardGold Queue
                     Order currentOrder = pointCardRegular.Dequeue();
-
-                    // For each dequeued order, it calls the ProcessOrder function to handle adding the order to the customerOrders dictionary.
                     ProcessOrder(currentOrder, customerOrdersDictionary);
                 }
 
-                // Display all ice creams in all processed orders
-                Console.WriteLine("Ice Creams in all processed orders:");
-
-                foreach (var customerOrder in customerOrdersDictionary)
-                {
-                    int memberId = customerOrder.Key;
-                    List<Order> orders = customerOrder.Value;
-
-                    Console.WriteLine($"Member ID: {memberId}");
-                    foreach (var order in orders)
-                    {
-                        foreach (var iceCream in order.IceCreamList)
-                        {
-                            Console.WriteLine(iceCream);
-                        }
-                    }
-                }
-                // Calculate and display the total bill amount 
-                double totalBill = 0.00;
-
-                foreach (var customerOrder in customerOrdersDictionary.Values)
-                {
-                    foreach (var order in customerOrder)
-                    {
-                        totalBill += order.CalculateTotal();
-                    }
-                }
-
-                Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
-                // Display membership status and points of the customer 
+                // Check if there are any orders in the dictionary
                 if (customerOrdersDictionary.Count > 0)
                 {
+                    // Display all ice creams in all processed orders
+                    foreach (var customerOrder in customerOrdersDictionary)
+                    {
+                        int memberId = customerOrder.Key;
+                        List<Order> orders = customerOrder.Value;
+
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        Console.WriteLine($"Member ID: {memberId}");
+                        Console.WriteLine("Ice Creams in all processed orders:");
+
+                        // Iterate through customers to find the one with the matching member ID and check if it's their birthday
+                        for (int i = 0; i < customers.Count; i++)
+                        {
+                            if (customers[i].MemberID == memberId && customers[i].IsBirthday())
+                            {
+                                foreach (var order in orders)
+                                {
+                                    foreach (var iceCream in order.IceCreamList)
+                                    {
+                                        if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
+                                        {
+                                            mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Calculate and display the total bill amount
+                    double totalBill = 0.00;
+
+                    foreach (var customerOrder in customerOrdersDictionary.Values)
+                    {
+                        foreach (var order in customerOrder)
+                        {
+                            // Check if a birthday discount is applicable and calculate the discounted bill
+                            if (mostExpensiveIceCreamPrice > 0)
+                            {
+                                totalBill += order.CalculateTotal();
+                                discountedBill = totalBill - mostExpensiveIceCreamPrice;
+                            }
+                            totalBill += order.CalculateTotal();
+                        }
+                    }
+
+                    // Display the total bill amount after applying the birthday discount if applicable
+                    if (discountedBill > 0)
+                    {
+                        Console.WriteLine($"Total Bill Amount for all orders after Birthday discount: {discountedBill:C}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
+                    }
+              
+                    // Display membership status and points of the customer
                     int firstCustomerId = customerOrdersDictionary.Keys.First();
 
                     foreach (var customer in customers)
@@ -606,10 +635,29 @@ namespace IceCreamShop
                             customer.Rewards.AddPoints(redemptionPoints);
 
                             Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
+                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                             break; // Break the loop once the matching customer is found
                         }
                     }
+
+                    // Remove orders from the dictionary after processing
+                    foreach (var memberId in customerOrdersDictionary.Keys.ToList())
+                    {
+                        customerOrdersDictionary.Remove(memberId);
+                    }
                 }
+                else
+                {
+                    Console.WriteLine("All orders have been processed.");
+                }
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Invalid input format. Please enter a valid format: {ex.Message}");
+            }
+            catch (OverflowException ex)
+            {
+                Console.WriteLine($"Overflow exception. The entered value is too large: {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -636,11 +684,19 @@ namespace IceCreamShop
                     customerOrdersDictionary[customerID] = new List<Order> { order };
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Error retrieving customerID from customerOrders dictionary keys: {ex.Message}");
+            }
+            // Handle other exceptions that might occur during the process
             catch (Exception ex)
             {
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
+
+        
+
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         // (Brayden's Methods)
         static void DisplayOrder(Order order)

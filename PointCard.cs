@@ -49,7 +49,7 @@ namespace S10258591_PRG2Assignment
             {
                 Tier = "Silver";
             }
-        }//Tier of pointcard will never drop
+        }//Tier of pointCard will never drop
 
         public void RedeemPoints(int bill)
         {
@@ -58,7 +58,13 @@ namespace S10258591_PRG2Assignment
 
         public void Punch()
         {
-            Points++;
+            PunchCard++;
+
+            if (PunchCard == 10)
+            {
+                Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
+                PunchCard = 0; // Reset the punch card after earning a free ice cream
+            }
         }
 
         public override string ToString()
