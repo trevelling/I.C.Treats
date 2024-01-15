@@ -73,7 +73,7 @@ namespace IceCreamShop
                         else if (option == 6) 
                         {
                             // Modify order details [Brayden]
-                            ModifyOrderDetails();
+                            ModifyOrderDetails(customerList);
                         }
                         else if (option == 7) 
                         {
@@ -444,7 +444,6 @@ namespace IceCreamShop
                         Console.WriteLine("Invalid option");
                         return;
                     }
-                    Console.WriteLine("Adding new ice cream (test)");
                     newOrder.AddIceCream(iceCream);
 
                     
@@ -495,7 +494,6 @@ namespace IceCreamShop
                     else
                     {
                         pointCardRegular.Enqueue(newOrder);
-                        Console.WriteLine($"{pointCardRegular.Count} test, added new order");
                     }
                 }
 
@@ -606,23 +604,24 @@ namespace IceCreamShop
                 List<IceCream> IceCreamList = order.IceCreamList;
                 foreach (IceCream iceCream in IceCreamList)
                 {
-                    Console.WriteLine($"  Ice Cream [{j}]");
+                    Console.WriteLine($"  {iceCream.Option} Ice Cream [{j}]");
                     List<Flavour> FlavourList = iceCream.Flavours;
                     List<Topping> ToppingList = iceCream.Toppings;
                     foreach (Flavour flavour in FlavourList)
                     {
                         Console.WriteLine($"    {flavour.Quantity} scoops of {flavour.Type}");
                     }
-                    Console.WriteLine($"    Topped with: {String.Join(", ", ToppingList)}");
+                    if (ToppingList.Count > 0)
+                    {
+                        Console.WriteLine($"    Topped with: {String.Join(", ", ToppingList)}");
+                    }
                     j++;
                 }
             }
-            
         }
         static void DisplayAllCurrentOrders(Queue<Order> orders)
         {
             int i = 1;
-            Console.WriteLine(orders.Count + "test");
             foreach (Order order in orders)
             {   
                 
@@ -698,10 +697,229 @@ namespace IceCreamShop
             
         }
         
-
-        static void ModifyOrderDetails()
+        static int IntValidation(int start, int end)
         {
+            int option = 0;
+            bool valid = false;
+            while (!valid)
+            {
+                try
+                {
+                    string input = (Console.ReadLine());
+                    option = int.Parse(input);
+                    if (option < start || option > end)
+                    {
+                        valid = false;
+                        Console.WriteLine($"Index not in range [{start}-{end}]! Try again.");
+                        continue;
+                    }
+                    else
+                    {
+                        valid = true;
+                    }
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid number.");
+                }
+                catch (OverflowException)
+                {
+                    Console.WriteLine("Input exceeds the range of a valid integer. Please enter a smaller number.");
+                }
 
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                }
+            }
+            return option;
+        }
+        static void ModifyOrderDetails(List<Customer> customerList)
+        {
+            DisplayAllCustomers(customerList);
+            Console.Write("Choose customer: ");
+            int option = IntValidation(1, customerList.Count);
+            Customer customer = customerList[option - 1];
+            Order currentOrder = customer.CurrentOrder;
+            DisplayOrder(currentOrder);
+            Console.WriteLine("[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
+            Console.Write("Enter option: ");
+            option = IntValidation(1, 3);
+            List<IceCream> iceCreamList = currentOrder.IceCreamList;
+            if (option == 1)
+            {
+                Console.Write("Choose Ice Cream to modify: ");
+                option = IntValidation(1, iceCreamList.Count);
+                currentOrder.ModifyIceCream(option - 1);
+            }
+            else if (option == 2)
+            {
+                IceCream iceCream = MakeIceCream();
+                currentOrder.AddIceCream(iceCream);
+            }
+            else if (option == 3)
+            {
+                Console.Write("Choose Ice Cream to delete: ");
+                option = IntValidation(1, iceCreamList.Count);
+                currentOrder.DeleteIceCream(option - 1);
+            }
+        }
+
+        static IceCream MakeIceCream()
+        {
+            string option;
+            do
+            {
+                Console.WriteLine("Choose your option!");
+                Console.Write("[Cup] [Cone] [Waffle]: ");
+                option = Console.ReadLine().ToLower();
+                Console.WriteLine("");
+
+                if (option.ToLower() != "cup" && option.ToLower() != "cone" && option.ToLower() != "waffle")
+                {
+                    Console.WriteLine("Invalid option. Please enter a valid option.");
+                }
+
+            } while (option != "cup" && option != "cone" && option != "waffle");
+
+            string waffleFlavour = "Plain";
+
+            // Choosing waffle flavour if waffle is selected
+            if (option.ToLower() == "waffle")
+            {
+                string validWaffleFlavour;
+                do
+                {
+                    Console.WriteLine("Choose your waffle flavour!");
+                    Console.Write("[Plain] [Red Velvet] [Charcoal] [Pandan]: ");
+                    validWaffleFlavour = Console.ReadLine().ToLower();
+                    Console.WriteLine("");
+
+                    if (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
+                        validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" && validWaffleFlavour.ToLower() != "redvelvet")
+                    {
+                        Console.WriteLine("Invalid waffle flavour. Please enter a valid waffle flavour.");
+                    }
+
+                } while (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
+                         validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan");
+
+                waffleFlavour = validWaffleFlavour;
+            }
+
+            int scoops;
+
+            while (true)
+            {
+                Console.WriteLine("Choose the no. of scoops!");
+                Console.Write("[1] [2] [3]: ");
+                scoops = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("");
+
+                if (scoops == 1 || scoops == 2 || scoops == 3)
+                {
+                    break;
+                }
+
+                Console.WriteLine("Invalid input. Please enter a valid number (1, 2, or 3).");
+            }
+
+            List<Flavour> flavourList = new List<Flavour>();
+            List<Topping> toppingList = new List<Topping>();
+
+            // Choosing premium or non-premium flavour for each scoop
+            for (int scoopNumber = 1; scoopNumber <= scoops; scoopNumber++)
+            {
+                bool validFlavour = false;
+
+                do
+                {
+                    Console.WriteLine($"Choose your flavor for scoop {scoopNumber}!");
+                    Console.Write("Would you like premium [y/n]: ");
+                    string userInput = Console.ReadLine().ToLower();
+                    bool premium = userInput.ToLower() == "y";
+                    Console.WriteLine("");
+
+                    if (userInput != "y" && userInput != "n")
+                    {
+                        Console.WriteLine("Invalid input. Please enter 'y' for yes or 'n' for no.");
+                        // Prompt the user again by continuing the loop
+                        continue;
+                    }
+
+                    Console.WriteLine($"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
+
+                    if (premium)
+                    {
+                        Console.Write("[Durian] [Ube] [Sea Salt]: ");
+                    }
+                    else
+                    {
+                        Console.Write("[Vanilla] [Chocolate] [Strawberry]: ");
+                    }
+
+                    string flavour = Console.ReadLine().ToLower();
+                    Console.WriteLine("");
+
+                    // Check if the entered flavor is valid
+                    if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
+                        (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" || flavour.ToLower() == "strawberry")))
+                    {
+                        validFlavour = true;
+                        Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
+                        flavourList.Add(iceCreamFlavour);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid flavor. Please enter a valid flavor.");
+                    }
+                } while (!validFlavour);
+            }
+
+            // Choosing toppings
+            bool exitToppings = false; // Flag to control the loop
+            for (int i = 0; i < 4 && !exitToppings; i++)
+            {
+                bool validTopping = false;
+
+                do
+                {
+                    Console.Write("What topping would you like [Sprinkles, Mochi, Sago, Oreos] [\"N\" to finish]: ");
+                    string topping = Console.ReadLine().ToLower();
+
+                    if (topping == "n")
+                    {
+                        exitToppings = true;  // Set exitToppings to true to break out of the for loop
+                        break;
+                    }
+
+                    // Check if the entered topping is valid
+                    if (topping == "sprinkles" || topping == "mochi" || topping == "sago" || topping == "oreos")
+                    {
+                        Topping toppings = new Topping(topping);
+                        toppingList.Add(toppings);
+                        validTopping = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid topping. Please enter a valid topping.");
+                    }
+                } while (!validTopping);
+
+            }
+
+            if (option.ToLower().Trim() == "cup")
+            {
+                return new Cup(option, scoops, flavourList, toppingList);
+            }
+            else if (option.ToLower().Trim() == "cone")
+            {
+                return new Cone(option, scoops, flavourList, toppingList, false);
+            }
+            else
+            {
+                return new Waffle(option, scoops, flavourList, toppingList, waffleFlavour);
+            }
         }
 
         static void DisplayChargess()
