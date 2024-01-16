@@ -53,7 +53,25 @@ namespace S10258591_PRG2Assignment
 
         public void RedeemPoints(int bill)
         {
-
+            if (Tier == "Gold" && Points >= 100)
+            {
+                // Redeem points only if the customer is Gold tier and has at least 100 points
+                int redeemedAmount = Math.Min(100, bill);
+                Points -= redeemedAmount;
+                Console.WriteLine($"Redeemed {redeemedAmount} points. Remaining Points: {Points}");
+            }
+            else if (Tier == "Silver" && Points >= 50)
+            {
+                // Redeem points only if the customer is Silver tier and has at least 50 points
+                int redeemedAmount = Math.Min(50, bill);
+                Points -= redeemedAmount;
+                Console.WriteLine($"Redeemed {redeemedAmount} points. Remaining Points: {Points}");
+            }
+            // You can add more conditions for other tiers if needed
+            else
+            {
+                Console.WriteLine("Customer cannot redeem points at this tier or insufficient points.");
+            }
         }
 
         public void Punch()

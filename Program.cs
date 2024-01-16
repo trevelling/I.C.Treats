@@ -35,7 +35,7 @@ namespace IceCreamShop
 
                 // QUEUE OF ORDERS FOR REGULAR MEMBERS
                 Queue<Order> pointCardRegular = new Queue<Order>();
-                
+
                 // LIST OF CUSTOMER OBJECTS
                 List<Customer> customerList = new List<Customer>();
 
@@ -54,7 +54,7 @@ namespace IceCreamShop
                             // 1) List all customers [Tevel]
                             DisplayAllCustomers(customerList);
                         }
-                        else if (option == 2)                          
+                        else if (option == 2)
                         {
                             Console.WriteLine("Gold Membership Queue\r\n------------------------------");
                             DisplayAllCurrentOrders(pointCardGold);
@@ -69,18 +69,18 @@ namespace IceCreamShop
                         else if (option == 4)
                         {
                             // Creates a customer's order [Tevel]
-                            CreateNewOrder(customerList, pointCardGold, pointCardRegular,customerOrdersDictionary);
+                            CreateNewOrder(customerList, pointCardGold, pointCardRegular, customerOrdersDictionary);
                         }
-                        else if (option == 5) 
+                        else if (option == 5)
                         {
                             DisplayOrderDetails(customerList);
                         }
-                        else if (option == 6) 
+                        else if (option == 6)
                         {
                             // Modify order details [Brayden]
                             ModifyOrderDetails(customerList);
                         }
-                        else if (option == 7) 
+                        else if (option == 7)
                         {
                             // Advanced Option (a) - Process an order and checkout [Tevel]
                             ProcessOrderAndCheckout(customerList, pointCardGold, pointCardRegular, customerOrdersDictionary);
@@ -110,7 +110,6 @@ namespace IceCreamShop
                     {
                         Console.WriteLine("Input exceeds the range of a valid integer. Please enter a smaller number.");
                     }
-
                     catch (Exception ex)
                     {
                         Console.WriteLine($"An unexpected error occurred: {ex.Message}");
@@ -475,25 +474,35 @@ namespace IceCreamShop
                     if (option.ToLower().Trim() == "cup")
                     {
                         iceCream = new Cup(option, scoops, flavourList, toppingList);
-                        UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     }
                     else if (option.ToLower().Trim() == "cone")
                     {
                         iceCream = new Cone(option, scoops, flavourList, toppingList, dipped);
-                        UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     }
                     else if (option.ToLower().Trim() == "waffle")
                     {
                         iceCream = new Waffle(option, scoops, flavourList, toppingList, waffleFlavour);
-                        UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     }
                     else
                     {
                         Console.WriteLine("Invalid option");
                         return;
                     }
-
+                    UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     newOrder.AddIceCream(iceCream);
+
+                    /*UpdateOrdersCSV(
+                        newOrder.Id,
+                        customers[customerIndex].MemberID,
+                        newOrder.TimeReceived,
+                        DateTime.MinValue,
+                        option,
+                        scoops,
+                        dipped,
+                        waffleFlavour,
+                        flavourList,
+                        toppingList
+                    );*/ //DONT TOUCH
 
                     Console.WriteLine("");
 
@@ -522,6 +531,8 @@ namespace IceCreamShop
                 {
                     customers[customerIndex].OrderHistory.Add(newOrder);
                 }
+
+                
 
                 Console.WriteLine("");
 
@@ -606,8 +617,6 @@ namespace IceCreamShop
                     {
                         sw.WriteLine($"{flavour},{cost}");
                     }
-
-                    Console.WriteLine("Flavours updated successfully.");
                 }
                 catch (IOException ex)
                 {
@@ -653,8 +662,6 @@ namespace IceCreamShop
                     {
                         sw.WriteLine($"{topping},{cost}");
                     }
-
-                    Console.WriteLine("Toppings updated successfully.");
                 }
                 catch (IOException ex)
                 {
@@ -714,8 +721,6 @@ namespace IceCreamShop
                             sw.WriteLine($"{option},{scoops},,{waffleFlavour},{cost}");
                         }
                     }
-
-                    Console.WriteLine("Options updated successfully.");
                 }
                 catch (IOException ex)
                 {
@@ -741,10 +746,70 @@ namespace IceCreamShop
         }
 
         static void UpdateOrdersCSV
-            (int id, int memberId, DateTime timeRecevied, DateTime timeFufilled,
-                string option, int scoops, bool dipped, string waffleFlavour, double cost)
+            (int id, int memberId, DateTime timeReceived, DateTime timeFulfilled,
+                string option, int scoops, bool dipped, string waffleFlavour,
+                List<Flavour> flavors, List<Topping> toppings)
         {
+            try
+            {
+                // Path to the options.csv file
+                string csvFilePath = "orders.csv";
 
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Convert boolean to string for "dipped" field
+                string dippedString = dipped ? "TRUE" : "FALSE";
+
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        string formattedTimeReceived = timeReceived.ToString("dd/MM/yyyy HH:mm");
+                        string formattedTimeFulfilled = timeFulfilled.ToString("dd/MM/yyyy HH:mm");
+
+                        string flavorsString = string.Join(",", flavors.Take(3).Select(f => f.Type ?? ""));
+                        string toppingsString = string.Join(",", toppings.Take(4).Select(t => t.Type ?? ""));
+
+                        if (option.ToLower() == "cup")
+                        {
+                            sw.WriteLine($"{id},{memberId},{formattedTimeReceived},{formattedTimeFulfilled},{option},{scoops},,,{flavorsString},{toppingsString}");
+                        }
+                        else if (option.ToLower() == "cone")
+                        {
+                            sw.WriteLine($"{id},{memberId},{formattedTimeReceived},{formattedTimeFulfilled},{option},{scoops},{dippedString},,{flavorsString},{toppingsString}");
+                        }
+                        else if (option.ToLower() == "waffle")
+                        {
+                            sw.WriteLine($"{id},{memberId},{formattedTimeReceived},{formattedTimeFulfilled},{option},{scoops},{dippedString},{waffleFlavour},{flavorsString},{toppingsString}");
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
         }
 
         static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, Dictionary<int, List<Order>> customerOrdersDictionary)
@@ -804,7 +869,7 @@ namespace IceCreamShop
                         {
                             timeFulfilled = DateTime.Now;
                             order.TimeFulfilled = timeFulfilled;
-
+                            
                             foreach (var iceCream in order.IceCreamList)
                             {
                                 Console.WriteLine(iceCream);
@@ -812,6 +877,15 @@ namespace IceCreamShop
                                 {
                                     mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
                                 }
+                            }
+                        }
+
+                        // Adding order into customer's order history
+                        foreach (var customer in customers)
+                        {
+                            foreach (var order in orders)
+                            {
+                                customer.OrderHistory.Add(order);
                             }
                         }
                     }
@@ -829,9 +903,7 @@ namespace IceCreamShop
                             {
                                 mostExpensiveIceCreamPrice = orderMostExpensivePrice;
                             }
-
                             totalBill += order.CalculateTotal();
-
                         }
                     }
 
@@ -859,16 +931,39 @@ namespace IceCreamShop
                             // Add redemption points to the customer's PointCard
                             customer.Rewards.AddPoints(redemptionPoints);
 
-                            Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
+                            Console.WriteLine($"Points before redemption: {customer.Rewards.Points}");
                             Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
-                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                             break; // Break the loop once the matching customer is found
                         }
                     }
 
+                    // Check PointCard status and redeem points if applicable
+                    CheckPointCardStatus(customers, firstCustomerId, totalBill);
+
+                    // Display points after redemption
+                    foreach (var customer in customers)
+                    {
+                        if (customer.MemberID == firstCustomerId)
+                        {
+                            Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
+
+                            // Prompt user to press any key for payment and increment punch card
+                            Console.WriteLine("Press any key to make payment...");
+                            Console.ReadKey();
+
+                            // Increment the punch card for every ice cream in the order
+                            customer.Rewards.Punch();
+                            totalBill = 0;
+                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                            break; // Break the loop once the matching customer is found
+                        }
+                    }
+                    
                     // Remove orders from the dictionary after processing
                     foreach (var memberId in customerOrdersDictionary.Keys.ToList())
                     {
+                        
                         customerOrdersDictionary.Remove(memberId);
                     }
                 }
@@ -922,7 +1017,72 @@ namespace IceCreamShop
             }
         }
 
-        
+        static void CheckPointCardStatus(List<Customer> customers, int customerId, double totalBill)
+        {
+            try
+            {
+                // Find the customer based on their MemberID
+                Customer customer = customers.FirstOrDefault(c => c.MemberID == customerId);
+
+                if (customer != null)
+                {
+                    string tier = customer.Rewards.Tier;
+
+                    // Check if the customer is eligible to redeem points
+                    if (tier == "Silver" || tier == "Gold")
+                    {
+                        Console.WriteLine($"Customer is {tier} tier.");
+
+                        // Prompt the user to enter the number of points they want to use
+                        if (totalBill > 0)
+                        {
+                            Console.Write("Enter the number of points to redeem (or 0 to skip): ");
+                            int redeemPoints = Convert.ToInt32(Console.ReadLine());
+
+                            // Validate input and redeem points
+                            if (redeemPoints > 0 && redeemPoints <= customer.Rewards.Points)
+                            {
+                                // Deduct redeemed points from the customer's PointCard
+                                customer.Rewards.RedeemPoints(redeemPoints);
+
+                                // Offset the total bill with redeemed points
+                                double offsetAmount = redeemPoints * 0.02;
+                                totalBill -= offsetAmount;
+
+                                Console.WriteLine($"Points redeemed successfully. Offset Amount: {offsetAmount:C}");
+                            }
+                            else if (redeemPoints == 0)
+                            {
+                                Console.WriteLine("Skipped points redemption.");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid points redemption amount or insufficient points.");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Skipping points redemption as the total bill amount is not greater than 0.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Customer cannot redeem points at this tier. Skipping points redemption.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Customer not found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+
+
 
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         // (Brayden's Methods)
