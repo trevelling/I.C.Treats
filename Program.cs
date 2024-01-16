@@ -17,6 +17,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Xml.Linq;
+using System.Security;
 
 namespace IceCreamShop
 {
@@ -24,18 +25,20 @@ namespace IceCreamShop
     {
         static void Main(string[] args)
         {
-            
             try
             {
+                // DICTIONARY [KEY: MemberID, VALUE: List of IceCream Orders]
                 Dictionary<int, List<Order>> customerOrdersDictionary = new Dictionary<int, List<Order>>();
 
-                //LIST OF ORDERS FOR GOLD MEMBERS
+                // QUEUE OF ORDERS FOR GOLD MEMBERS
                 Queue<Order> pointCardGold = new Queue<Order>();
 
-                //LIST OF ORDERS FOR REGULAR MEMBERS
+                // QUEUE OF ORDERS FOR REGULAR MEMBERS
                 Queue<Order> pointCardRegular = new Queue<Order>();
-           
+                
+                // LIST OF CUSTOMER OBJECTS
                 List<Customer> customerList = new List<Customer>();
+
                 initCustomers("customers.csv", customerList);
 
                 while (true)
@@ -99,7 +102,6 @@ namespace IceCreamShop
                             Console.WriteLine("Invalid option. Please choose a valid option.");
                         }
                     }
-
                     catch (FormatException)
                     {
                         Console.WriteLine("Invalid input. Please enter a valid number [0-8].");
@@ -113,7 +115,6 @@ namespace IceCreamShop
                     {
                         Console.WriteLine($"An unexpected error occurred: {ex.Message}");
                     }
-
                 }
             }
             catch (Exception ex)
@@ -286,7 +287,12 @@ namespace IceCreamShop
 
                 while (addMoreIceCreams)
                 {
+                    int scoops;
+                    bool dipped = false; // Replace with the actual value based on your logic
                     string option;
+                    string waffleFlavour = "Original"; // Default Plain
+
+
                     do
                     {
                         Console.WriteLine("Choose your option!");
@@ -303,31 +309,29 @@ namespace IceCreamShop
 
                     
                     // Choosing waffle flavour if waffle is selected
-                    string waffleFlavour = "Plain"; // Default Plain
                     if (option.ToLower() == "waffle")
                     {
                         string validWaffleFlavour;
                         do
                         {
                             Console.WriteLine("Choose your waffle flavour!");
-                            Console.Write("[Plain] [Red Velvet] [Charcoal] [Pandan]: ");
+                            Console.Write("[Original] [Red Velvet] [Charcoal] [Pandan]: ");
                             validWaffleFlavour = Console.ReadLine().ToLower();
                             Console.WriteLine("");
 
-                            if (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
+                            if (validWaffleFlavour.ToLower() != "original" && validWaffleFlavour.ToLower() != "red velvet" &&
                                 validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" && validWaffleFlavour.ToLower() != "redvelvet")
                             {
                                 Console.WriteLine("Invalid waffle flavour. Please enter a valid waffle flavour.");
                             }
 
-                        } while (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
+                        } while (validWaffleFlavour.ToLower() != "original" && validWaffleFlavour.ToLower() != "red velvet" &&
                                  validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan");
 
                         waffleFlavour = validWaffleFlavour;
                     }
 
                     // Choosing if cone is chocolate dipped if selected
-                    bool dipped = false;
                     if (option.ToLower() == "cone")
                     {
                         do
@@ -353,7 +357,6 @@ namespace IceCreamShop
                         } while (true); // Loop until a valid input is received
                     }
 
-                    int scoops;
 
                     while (true)
                     {
@@ -414,6 +417,16 @@ namespace IceCreamShop
                                 validFlavour = true;
                                 Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
                                 flavourList.Add(iceCreamFlavour);
+
+                                // Append the chosen flavor and its cost to the flavours.csv file
+                                if (premium)
+                                {
+                                    UpdateFlavoursCSV(flavour, 2);
+                                }
+                                else
+                                {
+                                    UpdateFlavoursCSV(flavour, 0);
+                                }
                             }
                             else
                             {
@@ -442,6 +455,9 @@ namespace IceCreamShop
                             // Check if the entered topping is valid
                             if (topping == "sprinkles" || topping == "mochi" || topping == "sago" || topping == "oreos")
                             {
+                                // Append the chosen topping and its cost to the toppings.csv file
+                                UpdateToppingsCSV(topping, 1);
+
                                 Topping toppings = new Topping(topping);
                                 toppingList.Add(toppings);
                                 validTopping = true;
@@ -459,14 +475,17 @@ namespace IceCreamShop
                     if (option.ToLower().Trim() == "cup")
                     {
                         iceCream = new Cup(option, scoops, flavourList, toppingList);
+                        UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     }
                     else if (option.ToLower().Trim() == "cone")
                     {
                         iceCream = new Cone(option, scoops, flavourList, toppingList, dipped);
+                        UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     }
                     else if (option.ToLower().Trim() == "waffle")
                     {
                         iceCream = new Waffle(option, scoops, flavourList, toppingList, waffleFlavour);
+                        UpdateOptionsCSV(option, scoops, dipped, waffleFlavour, iceCream.CalculatePrice());
                     }
                     else
                     {
@@ -495,7 +514,7 @@ namespace IceCreamShop
                             Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
                         }
                     }
-
+                   
                 }
 
                 // Adding the new order to the customer's OrderHistory only if it's not already added
@@ -548,6 +567,7 @@ namespace IceCreamShop
                         // If the Member ID is not yet in the dictionary, create a new list with the order
                         customerOrdersDictionary[customers[customerIndex].MemberID] = new List<Order>();
                     }
+
                 }
 
             }
@@ -563,6 +583,167 @@ namespace IceCreamShop
             {
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
+        }
+
+        static void UpdateFlavoursCSV(string flavour, int cost)
+        {
+            try
+            {
+                // Path to the flavours.csv file
+                string csvFilePath = "flavours.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        sw.WriteLine($"{flavour},{cost}");
+                    }
+
+                    Console.WriteLine("Flavours updated successfully.");
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        static void UpdateToppingsCSV(string topping, double cost)
+        {
+            try
+            {
+                // Path to the toppings.csv file
+                string csvFilePath = "toppings.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        sw.WriteLine($"{topping},{cost}");
+                    }
+
+                    Console.WriteLine("Toppings updated successfully.");
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        static void UpdateOptionsCSV(string option, int scoops, bool dipped, string waffleFlavour, double cost)
+        {
+            try
+            {
+                // Path to the options.csv file
+                string csvFilePath = "options.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Convert boolean to string for "dipped" field
+                string dippedString = dipped ? "TRUE" : "FALSE";
+
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        if (option.ToLower() == "cup")
+                        {
+                            sw.WriteLine($"{option},{scoops},,,{cost}");
+                        }
+                        else if (option.ToLower() == "cone")
+                        {
+                            sw.WriteLine($"{option},{scoops},{dippedString},,{cost}");
+                        }
+                        else if (option.ToLower() == "waffle")
+                        {
+                            sw.WriteLine($"{option},{scoops},,{waffleFlavour},{cost}");
+                        }
+                    }
+
+                    Console.WriteLine("Options updated successfully.");
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        static void UpdateOrdersCSV
+            (int id, int memberId, DateTime timeRecevied, DateTime timeFufilled,
+                string option, int scoops, bool dipped, string waffleFlavour, double cost)
+        {
 
         }
 
@@ -573,6 +754,8 @@ namespace IceCreamShop
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
                 string membershipStatus = "Ordinary";
+                DateTime timeFulfilled = new DateTime();
+                bool birthday = false;
 
                 // Process orders from the gold members order queue
                 while (pointCardGold.Count > 0)
@@ -608,6 +791,7 @@ namespace IceCreamShop
                             if (customers[i].MemberID == memberId && customers[i].IsBirthday())
                             {
                                 membershipStatus = customers[i].Rewards.Tier; // Set membership status if it's the customer's birthday
+                                birthday = true;
                                 break; // Break the loop once the matching customer is found
                             }
                         }
@@ -618,6 +802,9 @@ namespace IceCreamShop
                         // Checks for the most expensive IceCream
                         foreach (var order in orders)
                         {
+                            timeFulfilled = DateTime.Now;
+                            order.TimeFulfilled = timeFulfilled;
+
                             foreach (var iceCream in order.IceCreamList)
                             {
                                 Console.WriteLine(iceCream);
@@ -643,12 +830,13 @@ namespace IceCreamShop
                                 mostExpensiveIceCreamPrice = orderMostExpensivePrice;
                             }
 
-                            totalBill += order.CalculateTotal(); 
+                            totalBill += order.CalculateTotal();
+
                         }
                     }
 
                     // Checks if a birthday discount is applicable
-                    if (mostExpensiveIceCreamPrice > 0)
+                    if (mostExpensiveIceCreamPrice > 0 && birthday)
                     {
                         // Calculated discounted bill
                         totalBill -= mostExpensiveIceCreamPrice;
@@ -672,6 +860,7 @@ namespace IceCreamShop
                             customer.Rewards.AddPoints(redemptionPoints);
 
                             Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
+                            Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
                             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                             break; // Break the loop once the matching customer is found
                         }
