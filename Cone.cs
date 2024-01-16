@@ -58,15 +58,31 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            var flavourQuantities = Flavours
-                .GroupBy(flavour => flavour.Type)  // Group by flavor type
-                .Select(group => $"{group.Key} : {group.Sum(flavour => flavour.Quantity)}");
+            if (Dipped)
+            {
+                var flavourQuantities = Flavours
+                    .GroupBy(flavour => flavour.Type)  // Group by flavor type
+                    .Select(group => $"{group.Key} : {group.Sum(flavour => flavour.Quantity)}");
 
-            string flavourString = string.Join(", ", flavourQuantities);
-            string toppingString = string.Join(", ", Toppings.Select(topping => topping.ToString()));
+                string flavourString = string.Join(", ", flavourQuantities);
+                string toppingString = string.Join(", ", Toppings.Select(topping => topping.ToString()));
 
-            string result = $"A {Option}-IceCream with {Scoops} scoops, Flavours: [{flavourString}], Toppings: [{toppingString}]";
-            return result;
+                string result = $"A Dipped {Option}-IceCream with {Scoops} scoop(s), Flavours: [{flavourString}], Toppings: [{toppingString}]";
+                return result;
+            }
+            else
+            {
+                var flavourQuantities = Flavours
+                    .GroupBy(flavour => flavour.Type)  // Group by flavor type
+                    .Select(group => $"{group.Key} : {group.Sum(flavour => flavour.Quantity)}");
+
+                string flavourString = string.Join(", ", flavourQuantities);
+                string toppingString = string.Join(", ", Toppings.Select(topping => topping.ToString()));
+
+                string result = $"A {Option}-IceCream with {Scoops} scoop(s), Flavours: [{flavourString}], Toppings: [{toppingString}]";
+                return result;
+            }
+            
         }
     }
 }

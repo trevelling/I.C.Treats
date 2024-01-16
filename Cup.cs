@@ -57,7 +57,7 @@ namespace IceCreamShop
             string flavourString = string.Join(", ", flavourQuantities);
             string toppingString = string.Join(", ", Toppings.Select(topping => topping.ToString()));
 
-            string result = $"A {Option}-IceCream with {Scoops} scoops, Flavours: [{flavourString}], Toppings: [{toppingString}]";
+            string result = $"A {Option}-IceCream with {Scoops} scoop(s), Flavours: [{flavourString}], Toppings: [{toppingString}]";
             return result;
         }
     }

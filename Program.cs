@@ -85,7 +85,7 @@ namespace IceCreamShop
                         else if (option == 8)
                         {
                             // Advanced Option (b) - Display monthly charged amounts breakdown & total charged amounts for the year [Brayden]
-                            DisplayChargess();
+                            DisplayCharges();
                         }
                         else if (option == 0)
                         {
@@ -301,9 +301,9 @@ namespace IceCreamShop
 
                     } while (option != "cup" && option != "cone" && option != "waffle");
 
-                    string waffleFlavour = "Plain";
-
+                    
                     // Choosing waffle flavour if waffle is selected
+                    string waffleFlavour = "Plain"; // Default Plain
                     if (option.ToLower() == "waffle")
                     {
                         string validWaffleFlavour;
@@ -324,6 +324,33 @@ namespace IceCreamShop
                                  validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan");
 
                         waffleFlavour = validWaffleFlavour;
+                    }
+
+                    // Choosing if cone is chocolate dipped if selected
+                    bool dipped = false;
+                    if (option.ToLower() == "cone")
+                    {
+                        do
+                        {
+                            Console.Write("Do you want a chocolate dipped cone? [Y/N]: ");
+                            string dippedInput = Console.ReadLine().ToLower();
+                            Console.WriteLine("");
+
+                            if (dippedInput == "y")
+                            {
+                                dipped = true;
+                                break;
+                            }
+                            else if (dippedInput == "n")
+                            {
+                                dipped = false;
+                                break;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
+                            }
+                        } while (true); // Loop until a valid input is received
                     }
 
                     int scoops;
@@ -354,14 +381,14 @@ namespace IceCreamShop
                         do
                         {
                             Console.WriteLine($"Choose your flavor for scoop {scoopNumber}!");
-                            Console.Write("Would you like premium [y/n]: ");
+                            Console.Write("Would you like premium [Y/N]: ");
                             string userInput = Console.ReadLine().ToLower();
                             bool premium = userInput.ToLower() == "y";
                             Console.WriteLine("");
 
                             if (userInput != "y" && userInput != "n")
                             {
-                                Console.WriteLine("Invalid input. Please enter 'y' for yes or 'n' for no.");
+                                Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
                                 // Prompt the user again by continuing the loop
                                 continue;
                             }
@@ -435,7 +462,7 @@ namespace IceCreamShop
                     }
                     else if (option.ToLower().Trim() == "cone")
                     {
-                        iceCream = new Cone(option, scoops, flavourList, toppingList, false);
+                        iceCream = new Cone(option, scoops, flavourList, toppingList, dipped);
                     }
                     else if (option.ToLower().Trim() == "waffle")
                     {
@@ -543,9 +570,9 @@ namespace IceCreamShop
         {
             try
             {
-                // Initialize variables to track the most expensive ice cream price and discounted bill
                 double mostExpensiveIceCreamPrice = 0.00;
-                double discountedBill = 0.00;
+                double totalBill = 0.00;
+                string membershipStatus = "Ordinary";
 
                 // Process orders from the gold members order queue
                 while (pointCardGold.Count > 0)
@@ -564,6 +591,8 @@ namespace IceCreamShop
                 // Check if there are any orders in the dictionary
                 if (customerOrdersDictionary.Count > 0)
                 {
+                    int firstCustomerId = customerOrdersDictionary.Keys.First();
+
                     // Display all ice creams in all processed orders
                     foreach (var customerOrder in customerOrdersDictionary)
                     {
@@ -572,63 +601,71 @@ namespace IceCreamShop
 
                         Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         Console.WriteLine($"Member ID: {memberId}");
-                        Console.WriteLine("Ice Creams in all processed orders:");
 
                         // Iterate through customers to find the one with the matching member ID and check if it's their birthday
                         for (int i = 0; i < customers.Count; i++)
                         {
                             if (customers[i].MemberID == memberId && customers[i].IsBirthday())
                             {
-                                foreach (var order in orders)
+                                membershipStatus = customers[i].Rewards.Tier; // Set membership status if it's the customer's birthday
+                                break; // Break the loop once the matching customer is found
+                            }
+                        }
+
+                        Console.WriteLine($"Membership Status: {membershipStatus}");
+                        Console.WriteLine("Ice Creams in all processed orders:");
+
+                        // Checks for the most expensive IceCream
+                        foreach (var order in orders)
+                        {
+                            foreach (var iceCream in order.IceCreamList)
+                            {
+                                Console.WriteLine(iceCream);
+                                if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
                                 {
-                                    foreach (var iceCream in order.IceCreamList)
-                                    {
-                                        if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
-                                        {
-                                            mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
-                                        }
-                                    }
+                                    mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
                                 }
                             }
                         }
                     }
 
-                    // Calculate and display the total bill amount
-                    double totalBill = 0.00;
-
+                    // Identifies the most expensive IceCream across all processed orders.
                     foreach (var customerOrder in customerOrdersDictionary.Values)
                     {
                         foreach (var order in customerOrder)
                         {
-                            // Check if a birthday discount is applicable and calculate the discounted bill
-                            if (mostExpensiveIceCreamPrice > 0)
+                            // Calculate the most expensive ice cream price for each order
+                            double orderMostExpensivePrice = order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
+
+                            // Update the overall most expensive ice cream price
+                            if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
                             {
-                                totalBill += order.CalculateTotal();
-                                discountedBill = totalBill - mostExpensiveIceCreamPrice;
+                                mostExpensiveIceCreamPrice = orderMostExpensivePrice;
                             }
-                            totalBill += order.CalculateTotal();
+
+                            totalBill += order.CalculateTotal(); 
                         }
                     }
 
-                    // Display the total bill amount after applying the birthday discount if applicable
-                    if (discountedBill > 0)
+                    // Checks if a birthday discount is applicable
+                    if (mostExpensiveIceCreamPrice > 0)
                     {
-                        Console.WriteLine($"Total Bill Amount for all orders after Birthday discount: {discountedBill:C}");
+                        // Calculated discounted bill
+                        totalBill -= mostExpensiveIceCreamPrice;
+                        
+                        Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
                     }
                     else
                     {
+                       
                         Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
                     }
-              
-                    // Display membership status and points of the customer
-                    int firstCustomerId = customerOrdersDictionary.Keys.First();
 
+                    // Display points after redemption
                     foreach (var customer in customers)
                     {
                         if (customer.MemberID == firstCustomerId)
                         {
-                            Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
-
                             int redemptionPoints = (int)Math.Floor(totalBill * 0.72);
 
                             // Add redemption points to the customer's PointCard
@@ -664,6 +701,7 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
+
 
         static void ProcessOrder(Order order, Dictionary<int, List<Order>> customerOrdersDictionary)
         {
@@ -1025,7 +1063,7 @@ namespace IceCreamShop
             }
         }
 
-        static void DisplayChargess()
+        static void DisplayCharges()
         {
 
         }
