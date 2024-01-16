@@ -525,6 +525,25 @@ namespace IceCreamShop
                     {
                         pointCardRegular.Enqueue(newOrder);
                     }
+                    customers[customerIndex].CurrentOrder = newOrder;
+                    Console.WriteLine($"{customers[customerIndex].Name}");
+                    Console.WriteLine($"{customers[customerIndex].CurrentOrder}");
+
+                    Console.WriteLine("");
+
+                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
+
+
+                    Console.WriteLine($"Order ID: {newOrder.Id}, Time Received: {newOrder.TimeReceived}");
+                    Console.WriteLine("ORDER:");
+
+                    for (int i = 0; i < newOrder.IceCreamList.Count; i++)
+                    {
+                        Console.WriteLine($"IceCream [{i + 1}]: {newOrder.IceCreamList[i]}");
+                    }
+
+                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("");
 
                     // Add the new order to the dictionary based on the customer's Member ID
                     if (customerOrdersDictionary.ContainsKey(customers[customerIndex].MemberID))
@@ -537,27 +556,7 @@ namespace IceCreamShop
                         customerOrdersDictionary[customers[customerIndex].MemberID] = new List<Order>();
                     }
 
-                    Console.WriteLine("");
-
-                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
-
-                    foreach (var customerId in customerOrdersDictionary.Keys)
-                    {
-                        var orders = customerOrdersDictionary[customerId];
-
-                        foreach (var order in orders)
-                        {
-                            Console.WriteLine($"Order ID: {order.Id}, Time Received: {order.TimeReceived}");
-                            Console.WriteLine("ORDER:");
-
-                            for (int i = 0; i < order.IceCreamList.Count; i++)
-                            {
-                                Console.WriteLine($"IceCream [{i + 1}]: {order.IceCreamList[i]}");
-                            }
-                        }
-                    }
-                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
-                    Console.WriteLine("");
+                    
                 }
             }
             catch (FormatException ex)
@@ -1132,31 +1131,37 @@ namespace IceCreamShop
             {
                 List<Order> orderHistory = customer.OrderHistory;
                 Order currentOrder = customer.CurrentOrder;
-                if (currentOrder == null || orderHistory == null) 
+                if (currentOrder == null && orderHistory == null) 
                 {
                     Console.WriteLine("No data found. ");
                     return;
                 }
-                Console.WriteLine("Current Order\r\n-------------------");
-                Console.WriteLine("Date Received: " + currentOrder.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
-                DisplayOrder(currentOrder);
-                Console.WriteLine("Past Orders\r\n-------------------");
-                int i = 1;
-                foreach (Order order in orderHistory)
+                if (currentOrder != null)
                 {
-                    Console.WriteLine($"Order [{i}]");
-                    Console.WriteLine("Date Received:  " + order.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
-                    if (order.TimeFulfilled.HasValue)
+                    Console.WriteLine($"{customer.Name}'s Current Order\r\n-------------------");
+                    Console.WriteLine("Date Received: " + currentOrder.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
+                    DisplayOrder(currentOrder);
+                }
+                if (orderHistory != null)
+                {
+                    Console.WriteLine($"{customer.Name}'s Past Orders\r\n-------------------");
+                    int i = 1;
+                    foreach (Order order in orderHistory)
                     {
-                        DateTime? time = order.TimeFulfilled;
-                        Console.WriteLine("Date Fulfilled: " + time?.ToString("dd MMM yyyy, HH:mm"));
+                        Console.WriteLine($"Order [{i}]");
+                        Console.WriteLine("Date Received:  " + order.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
+                        if (order.TimeFulfilled.HasValue)
+                        {
+                            DateTime? time = order.TimeFulfilled;
+                            Console.WriteLine("Date Fulfilled: " + time?.ToString("dd MMM yyyy, HH:mm"));
+                        }
+                        else
+                        {
+                            Console.WriteLine("Not yet fulfilled");
+                        }
+                        DisplayOrder(order);
+                        i++;
                     }
-                    else
-                    {
-                        Console.WriteLine("Not yet fulfilled");
-                    }
-                    DisplayOrder(order);
-                    i++;
                 }
             }
             catch (NullReferenceException)
