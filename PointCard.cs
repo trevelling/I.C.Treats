@@ -49,7 +49,7 @@ namespace S10258591_PRG2Assignment
             {
                 Tier = "Silver";
             }
-        }//Tier of pointCard will never drop
+        }// Tier of pointCard will never drop
 
         public void RedeemPoints(int bill)
         {
