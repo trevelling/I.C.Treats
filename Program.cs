@@ -275,12 +275,6 @@ namespace IceCreamShop
                 // Linking the new order to the customer's current order
                 customers[customerIndex].CurrentOrder = newOrder;
 
-                // Initialize OrderHistory if it's null
-                if (customers[customerIndex].OrderHistory == null)
-                {
-                    customers[customerIndex].OrderHistory = new List<Order>();
-                }
-
                 // Initialize flag for adding more ice creams
                 bool addMoreIceCreams = true;
 
@@ -290,8 +284,6 @@ namespace IceCreamShop
                     bool dipped = false; // Replace with the actual value based on your logic
                     string option;
                     string waffleFlavour = "Original"; // Default Plain
-
-
                     do
                     {
                         Console.WriteLine("Choose your option!");
@@ -523,43 +515,9 @@ namespace IceCreamShop
                             Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
                         }
                     }
-                   
-                }
 
-                // Adding the new order to the customer's OrderHistory only if it's not already added
-                if (!customers[customerIndex].OrderHistory.Contains(newOrder))
-                {
-                    customers[customerIndex].OrderHistory.Add(newOrder);
-                }
-
-                
-
-                Console.WriteLine("");
-
-                if (customers[customerIndex].OrderHistory.Count > 0)
-                {
-                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
-
-                    for (int orderIndex = 0; orderIndex < customers[customerIndex].OrderHistory.Count; orderIndex++)
-                    {
-                        var order = customers[customerIndex].OrderHistory[orderIndex];
-
-                        Console.WriteLine($"Order ID: {order.Id}, Time Received: {order.TimeReceived}");
-                        Console.WriteLine("");
-                        Console.WriteLine("ORDER:");
-
-                        for (int i = 0; i < order.IceCreamList.Count; i++)
-                        {
-                            Console.WriteLine($"IceCream [{i + 1}]: {order.IceCreamList[i]}");
-                        }
-                    }
-
-                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
-                    Console.WriteLine("");
-                    
                     if (customers[customerIndex].Rewards.Tier == "Gold")
                     {
-                        Console.WriteLine("Order placed in the gold members order queue.");
                         pointCardGold.Enqueue(newOrder);
 
                     }
@@ -575,12 +533,32 @@ namespace IceCreamShop
                     }
                     else
                     {
-                        // If the Member ID is not yet in the dictionary, create a new list with the order
+                        //If the Member ID is not yet in the dictionary, create a new list with the order
                         customerOrdersDictionary[customers[customerIndex].MemberID] = new List<Order>();
                     }
 
-                }
+                    Console.WriteLine("");
 
+                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
+
+                    foreach (var customerId in customerOrdersDictionary.Keys)
+                    {
+                        var orders = customerOrdersDictionary[customerId];
+
+                        foreach (var order in orders)
+                        {
+                            Console.WriteLine($"Order ID: {order.Id}, Time Received: {order.TimeReceived}");
+                            Console.WriteLine("ORDER:");
+
+                            for (int i = 0; i < order.IceCreamList.Count; i++)
+                            {
+                                Console.WriteLine($"IceCream [{i + 1}]: {order.IceCreamList[i]}");
+                            }
+                        }
+                    }
+                    Console.WriteLine("---------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("");
+                }
             }
             catch (FormatException ex)
             {
