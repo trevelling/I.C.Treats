@@ -858,14 +858,14 @@ namespace IceCreamShop
                             }
                         }
 
-                        // Adding order into customer's order history
+                        /*Adding order into customer's order history
                         foreach (var customer in customers)
                         {
                             foreach (var order in orders)
                             {
                                 customer.OrderHistory.Add(order);
                             }
-                        }
+                        }*/
                     }
 
                     // Identifies the most expensive IceCream across all processed orders.
@@ -926,12 +926,13 @@ namespace IceCreamShop
                             Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
 
                             // Prompt user to press any key for payment and increment punch card
-                            Console.WriteLine("Press any key to make payment...");
+                            Console.WriteLine("Press [enter] to make payment...");
                             Console.ReadKey();
-
+                            Console.WriteLine("Payment has successfully been made");
                             // Increment the punch card for every ice cream in the order
                             customer.Rewards.Punch();
                             totalBill = 0;
+                            Console.WriteLine("");
                             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
                             break; // Break the loop once the matching customer is found
