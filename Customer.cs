@@ -36,18 +36,12 @@ namespace IceCreamShop
 
         public Order MakeOrder()
         {
-            int orderid = 0;
-            if (CurrentOrder != null)
-            {
-                orderid = 1;
-            }
-            else
-            {
-                orderid += 1;
-            }
+            int orderid = 1;
+            
             // Creating a new Order object that contains the customer's MemberID and the time it was ordered
             Order newOrder = new Order(orderid, DateTime.Now);
             CurrentOrder = newOrder;
+
 
             // Every time a new order is created, give a new punch in the PunchCard
             if (Rewards != null)
@@ -241,6 +235,7 @@ namespace IceCreamShop
                     } while (!validTopping);
                 }
 
+                Console.WriteLine("");
                 // Adding a new IceCream object based on the option
                 IceCream iceCream = null;
 
@@ -295,8 +290,6 @@ namespace IceCreamShop
                         Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
                     }
                 }
-
-
             }
             return newOrder;
         }
