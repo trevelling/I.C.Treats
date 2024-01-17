@@ -39,6 +39,8 @@ namespace IceCreamShop
                 // LIST OF CUSTOMER OBJECTS
                 List<Customer> customerList = new List<Customer>();
 
+                List<Order> newOrderList = new List<Order>();
+
                 initCustomers("customers.csv", customerList);
 
                 while (true)
@@ -69,7 +71,7 @@ namespace IceCreamShop
                         else if (option == 4)
                         {
                             // Creates a customer's order [Tevel]
-                            CreateNewOrder(customerList, pointCardGold, pointCardRegular, customerOrdersDictionary);
+                            CreateNewOrder(customerList, pointCardGold, pointCardRegular, newOrderList);
                         }
                         else if (option == 5)
                         {
@@ -83,7 +85,7 @@ namespace IceCreamShop
                         else if (option == 7)
                         {
                             // Advanced Option (a) - Process an order and checkout [Tevel]
-                            ProcessOrderAndCheckout(customerList, pointCardGold, pointCardRegular, customerOrdersDictionary);
+                            ProcessOrderAndCheckout(customerList, pointCardGold, pointCardRegular, newOrderList);
                         }
                         else if (option == 8)
                         {
@@ -259,7 +261,7 @@ namespace IceCreamShop
             }
         }
 
-        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, Dictionary<int, List<Order>> customerOrdersDictionary)
+        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
             {
@@ -272,29 +274,17 @@ namespace IceCreamShop
 
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
+                newOrderList.Add(newOrder);
 
                 // Checking which queue to put them in
                 if (customers[customerIndex].Rewards.Tier == "Gold")
                 {
                     pointCardGold.Enqueue(newOrder);
-
                 }
                 else
                 {
                     pointCardRegular.Enqueue(newOrder);
                 }
-
-                // Add the new order to the dictionary based on the customer's Member ID
-                if (customerOrdersDictionary.ContainsKey(customers[customerIndex].MemberID))
-                {
-                    customerOrdersDictionary[customers[customerIndex].MemberID].Add(newOrder);
-                }
-                else
-                {
-                    //If the Member ID is not yet in the dictionary, create a new list with the order
-                    customerOrdersDictionary[customers[customerIndex].MemberID] = new List<Order>();
-                }
-
             }
             catch (FormatException ex)
             {
@@ -310,280 +300,55 @@ namespace IceCreamShop
             }
         }
 
-        static void UpdateFlavoursCSV(string flavour, int cost)
-        {
-            try
-            {
-                // Path to the flavours.csv file
-                string csvFilePath = "flavours.csv";
+        
 
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-
-                // Open the file for appending
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        sw.WriteLine($"{flavour},{cost}");
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        static void UpdateToppingsCSV(string topping, double cost)
-        {
-            try
-            {
-                // Path to the toppings.csv file
-                string csvFilePath = "toppings.csv";
-
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-
-                // Open the file for appending
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        sw.WriteLine($"{topping},{cost}");
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        static void UpdateOptionsCSV(string option, int scoops, bool dipped, string waffleFlavour, double cost)
-        {
-            try
-            {
-                // Path to the options.csv file
-                string csvFilePath = "options.csv";
-
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-
-                // Convert boolean to string for "dipped" field
-                string dippedString = dipped ? "TRUE" : "FALSE";
-
-                // Open the file for appending
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        if (option.ToLower() == "cup")
-                        {
-                            sw.WriteLine($"{option},{scoops},,,{cost}");
-                        }
-                        else if (option.ToLower() == "cone")
-                        {
-                            sw.WriteLine($"{option},{scoops},{dippedString},,{cost}");
-                        }
-                        else if (option.ToLower() == "waffle")
-                        {
-                            sw.WriteLine($"{option},{scoops},,{waffleFlavour},{cost}");
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        static void UpdateOrdersCSV
-            (int id, int memberId, DateTime timeReceived, DateTime timeFulfilled,
-                string option, int scoops, bool dipped, string waffleFlavour,
-                List<Flavour> flavors, List<Topping> toppings)
-        {
-            try
-            {
-                // Path to the options.csv file
-                string csvFilePath = "orders.csv";
-
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-
-                // Convert boolean to string for "dipped" field
-                string dippedString = dipped ? "TRUE" : "FALSE";
-
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        string formattedTimeReceived = timeReceived.ToString("dd/MM/yyyy HH:mm");
-                        string formattedTimeFulfilled = timeFulfilled.ToString("dd/MM/yyyy HH:mm");
-
-                        string flavorsString = string.Join(",", flavors.Take(3).Select(f => f.Type ?? ""));
-                        string toppingsString = string.Join(",", toppings.Take(4).Select(t => t.Type ?? ""));
-
-                        if (option.ToLower() == "cup")
-                        {
-                            sw.WriteLine($"{id},{memberId},{formattedTimeReceived},{formattedTimeFulfilled},{option},{scoops},,,{flavorsString},{toppingsString}");
-                        }
-                        else if (option.ToLower() == "cone")
-                        {
-                            sw.WriteLine($"{id},{memberId},{formattedTimeReceived},{formattedTimeFulfilled},{option},{scoops},{dippedString},,{flavorsString},{toppingsString}");
-                        }
-                        else if (option.ToLower() == "waffle")
-                        {
-                            sw.WriteLine($"{id},{memberId},{formattedTimeReceived},{formattedTimeFulfilled},{option},{scoops},{dippedString},{waffleFlavour},{flavorsString},{toppingsString}");
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, Dictionary<int, List<Order>> customerOrdersDictionary)
+        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
             {
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
-                string membershipStatus = "Ordinary";
                 DateTime timeFulfilled = new DateTime();
                 bool birthday = false;
 
-                // Process orders from the gold members order queue
-                while (pointCardGold.Count > 0)
-                {
-                    Order currentOrder = pointCardGold.Dequeue();
-                    ProcessOrder(currentOrder, customerOrdersDictionary);
-                }
 
-                // Process orders from the regular members order queue
-                while (pointCardRegular.Count > 0)
+                foreach (var customer in customers)
                 {
-                    Order currentOrder = pointCardRegular.Dequeue();
-                    ProcessOrder(currentOrder, customerOrdersDictionary);
-                }
-
-                // Check if there are any orders in the dictionary
-                if (customerOrdersDictionary.Count > 0)
-                {
-                    int firstCustomerId = customerOrdersDictionary.Keys.First();
-
-                    // Display all ice creams in all processed orders
-                    foreach (var customerOrder in customerOrdersDictionary)
+                    foreach (var order in newOrderList)
                     {
-                        int memberId = customerOrder.Key;
-                        List<Order> orders = customerOrder.Value;
-
-                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        Console.WriteLine($"Member ID: {memberId}");
-
-                        // Iterate through customers to find the one with the matching member ID and check if it's their birthday
-                        for (int i = 0; i < customers.Count; i++)
+                        // Checks if the customer current order == newOrderList id
+                        if (customer.CurrentOrder.Id == order.Id)
                         {
-                            if (customers[i].MemberID == memberId && customers[i].IsBirthday())
+                            // Process orders from the gold members order queue
+                            while (pointCardGold.Count > 0)
                             {
-                                membershipStatus = customers[i].Rewards.Tier; // Set membership status if it's the customer's birthday
-                                birthday = true;
-                                break; // Break the loop once the matching customer is found
+                                pointCardGold.Dequeue();
                             }
-                        }
 
-                        Console.WriteLine($"Membership Status: {membershipStatus}");
-                        Console.WriteLine("Ice Creams in all processed orders:");
+                            // Process orders from the regular members order queue
+                            while (pointCardRegular.Count > 0)
+                            {
+                                pointCardRegular.Dequeue();
+                            }
 
-                        // Checks for the most expensive IceCream
-                        foreach (var order in orders)
-                        {
-                            timeFulfilled = DateTime.Now;
-                            order.TimeFulfilled = timeFulfilled;
+                            Console.WriteLine("");
+                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Console.WriteLine($"{customer.Name} - {customer.MemberID}");
+
+                            if (customer.IsBirthday())
+                            {
+                                birthday = true;
+                            }
                             
+                            Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
+
+                            // Display all ice creams in all processed orders
+                            Console.WriteLine("Ice Creams in all processed orders:");
+                            Console.WriteLine(order);
+                            order.TimeFulfilled = DateTime.Now;
+                            //customer.OrderHistory.Add(order);
+
+
                             foreach (var iceCream in order.IceCreamList)
                             {
                                 Console.WriteLine(iceCream);
@@ -592,24 +357,7 @@ namespace IceCreamShop
                                     mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
                                 }
                             }
-                        }
 
-                        /*Adding order into customer's order history
-                        foreach (var customer in customers)
-                        {
-                            foreach (var order in orders)
-                            {
-                                customer.OrderHistory.Add(order);
-                            }
-                        }*/
-                    }
-
-                    // Identifies the most expensive IceCream across all processed orders.
-                    foreach (var customerOrder in customerOrdersDictionary.Values)
-                    {
-                        foreach (var order in customerOrder)
-                        {
-                            // Calculate the most expensive ice cream price for each order
                             double orderMostExpensivePrice = order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
 
                             // Update the overall most expensive ice cream price
@@ -618,28 +366,21 @@ namespace IceCreamShop
                                 mostExpensiveIceCreamPrice = orderMostExpensivePrice;
                             }
                             totalBill += order.CalculateTotal();
-                        }
-                    }
 
-                    // Checks if a birthday discount is applicable
-                    if (mostExpensiveIceCreamPrice > 0 && birthday)
-                    {
-                        // Calculated discounted bill
-                        totalBill -= mostExpensiveIceCreamPrice;
-                        
-                        Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
-                    }
-                    else
-                    {
-                       
-                        Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
-                    }
+                            // Checks if a birthday discount is applicable
+                            if (mostExpensiveIceCreamPrice > 0 && birthday)
+                            {
+                                // Calculated discounted bill
+                                totalBill -= mostExpensiveIceCreamPrice;
 
-                    // Display points after redemption
-                    foreach (var customer in customers)
-                    {
-                        if (customer.MemberID == firstCustomerId)
-                        {
+                                Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
+                            }
+                            else
+                            {
+
+                                Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
+                            }
+
                             int redemptionPoints = (int)Math.Floor(totalBill * 0.72);
 
                             // Add redemption points to the customer's PointCard
@@ -647,18 +388,7 @@ namespace IceCreamShop
 
                             Console.WriteLine($"Points before redemption: {customer.Rewards.Points}");
                             Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
-                            break; // Break the loop once the matching customer is found
-                        }
-                    }
 
-                    // Check PointCard status and redeem points if applicable
-                    CheckPointCardStatus(customers, firstCustomerId, totalBill);
-
-                    // Display points after redemption
-                    foreach (var customer in customers)
-                    {
-                        if (customer.MemberID == firstCustomerId)
-                        {
                             Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
 
                             // Prompt user to press any key for payment and increment punch card
@@ -668,23 +398,15 @@ namespace IceCreamShop
                             // Increment the punch card for every ice cream in the order
                             customer.Rewards.Punch();
                             totalBill = 0;
-                            Console.WriteLine("");
                             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                            break; // Break the loop once the matching customer is found
+                            newOrderList.Remove(order);
+                        }
+                        else
+                        {
+                            Console.WriteLine("No orders found");
                         }
                     }
-                    
-                    // Remove orders from the dictionary after processing
-                    foreach (var memberId in customerOrdersDictionary.Keys.ToList())
-                    {
-                        
-                        customerOrdersDictionary.Remove(memberId);
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("All orders have been processed.");
                 }
             }
             catch (FormatException ex)
@@ -700,103 +422,6 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-
-
-        static void ProcessOrder(Order order, Dictionary<int, List<Order>> customerOrdersDictionary)
-        {
-            try
-            {
-                // Get the first customerID from the keys of the customerOrders dictionary
-                int customerID = customerOrdersDictionary.Keys.FirstOrDefault();
-
-                // Check if the customerOrders dictionary already contains the customer's MemberID
-                if (customerOrdersDictionary.ContainsKey(customerID))
-                {
-                    // If not, add a new entry with the MemberID as the key and an empty list of orders as the value
-                    customerOrdersDictionary[customerID].Add(order);
-                }
-                else
-                {
-                    // If the MemberID is not yet in the dictionary, create a new list with the order
-                    customerOrdersDictionary[customerID] = new List<Order> { order };
-                }
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine($"Error retrieving customerID from customerOrders dictionary keys: {ex.Message}");
-            }
-            // Handle other exceptions that might occur during the process
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        static void CheckPointCardStatus(List<Customer> customers, int customerId, double totalBill)
-        {
-            try
-            {
-                // Find the customer based on their MemberID
-                Customer customer = customers.FirstOrDefault(c => c.MemberID == customerId);
-
-                if (customer != null)
-                {
-                    string tier = customer.Rewards.Tier;
-
-                    // Check if the customer is eligible to redeem points
-                    if (tier == "Silver" || tier == "Gold")
-                    {
-                        Console.WriteLine($"Customer is {tier} tier.");
-
-                        // Prompt the user to enter the number of points they want to use
-                        if (totalBill > 0)
-                        {
-                            Console.Write("Enter the number of points to redeem (or 0 to skip): ");
-                            int redeemPoints = Convert.ToInt32(Console.ReadLine());
-
-                            // Validate input and redeem points
-                            if (redeemPoints > 0 && redeemPoints <= customer.Rewards.Points)
-                            {
-                                // Deduct redeemed points from the customer's PointCard
-                                customer.Rewards.RedeemPoints(redeemPoints);
-
-                                // Offset the total bill with redeemed points
-                                double offsetAmount = redeemPoints * 0.02;
-                                totalBill -= offsetAmount;
-
-                                Console.WriteLine($"Points redeemed successfully. Offset Amount: {offsetAmount:C}");
-                            }
-                            else if (redeemPoints == 0)
-                            {
-                                Console.WriteLine("Skipped points redemption.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Invalid points redemption amount or insufficient points.");
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Skipping points redemption as the total bill amount is not greater than 0.");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Customer cannot redeem points at this tier. Skipping points redemption.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Customer not found.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-
 
 
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

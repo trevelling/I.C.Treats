@@ -36,8 +36,17 @@ namespace IceCreamShop
 
         public Order MakeOrder()
         {
+            int orderid = 0;
+            if (CurrentOrder != null)
+            {
+                orderid = 1;
+            }
+            else
+            {
+                orderid += 1;
+            }
             // Creating a new Order object that contains the customer's MemberID and the time it was ordered
-            Order newOrder = new Order(MemberID, DateTime.Now);
+            Order newOrder = new Order(orderid, DateTime.Now);
             CurrentOrder = newOrder;
 
             // Every time a new order is created, give a new punch in the PunchCard
@@ -251,18 +260,19 @@ namespace IceCreamShop
                 {
                     Console.WriteLine("Invalid option");
                 }
+
                 // Adding the ice cream to the current order
                 CurrentOrder.AddIceCream(iceCream);
 
                 // Displaying order details
                 Console.WriteLine("---------------------------------------------------------------------------------------------------");
-                Console.WriteLine($"{Name}");
+                Console.WriteLine($"{Name} [{MemberID}]");
                 Console.WriteLine($"{CurrentOrder}");
-                Console.WriteLine("ORDER:");
+         
 
                 for (int i = 0; i < CurrentOrder.IceCreamList.Count; i++)
                 {
-                    Console.WriteLine($"IceCream [{i + 1}]: {CurrentOrder.IceCreamList[i]}");
+                    Console.WriteLine($"[{i + 1}] {CurrentOrder.IceCreamList[i]}");
                 }
 
                 Console.WriteLine("---------------------------------------------------------------------------------------------------");

@@ -204,7 +204,7 @@ namespace IceCreamShop
 
         public override string ToString()
         {
-            return $"Id: {Id} Time Received: {TimeReceived}";
+            return $"Order Id: {Id} Time Received: {TimeReceived}";
         }
     }
 }
