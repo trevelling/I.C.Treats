@@ -260,6 +260,7 @@ namespace IceCreamShop
             }
         }
 
+
         static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
@@ -285,9 +286,11 @@ namespace IceCreamShop
                     break;
                 }
 
+
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
                 newOrderList.Add(newOrder);
+                newOrder.Id += 1;
 
                 // Checking which queue to put them in
                 if (customers[customerIndex].Rewards.Tier == "Gold")
@@ -320,6 +323,10 @@ namespace IceCreamShop
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
                 bool birthday = false;
+                bool ordersToProcess = false; 
+
+
+                List<Order> ordersToRemove = new List<Order>(); // Keep track of orders to remove
 
                 foreach (var customer in customers)
                 {
@@ -330,6 +337,8 @@ namespace IceCreamShop
                         {
                             if (newOrderList.Count > 0)
                             {
+                                ordersToProcess = true;
+
                                 // Process orders from the gold members order queue
                                 while (pointCardGold.Count > 0)
                                 {
@@ -409,9 +418,24 @@ namespace IceCreamShop
                                 customer.Rewards.Punch();
                                 totalBill = 0;
                                 Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                                // Add the order to the list of orders to remove
+                                ordersToRemove.Add(order);
                             }
                         }
                     }
+                }
+
+                // Remove the processed orders from the newOrderList
+                foreach (var orderToRemove in ordersToRemove)
+                {
+                    newOrderList.Remove(orderToRemove);
+                }
+
+                // Display the message if there are no orders to process
+                if (!ordersToProcess)
+                {
+                    Console.WriteLine("No orders to process.");
                 }
             }
             catch (FormatException ex)
