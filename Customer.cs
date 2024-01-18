@@ -36,11 +36,11 @@ namespace IceCreamShop
 
         public Order MakeOrder()
         {
-            int orderid = 1;
-            
+            int orderId = 1;
             // Creating a new Order object that contains the customer's MemberID and the time it was ordered
-            Order newOrder = new Order(orderid, DateTime.Now);
+            Order newOrder = new Order(orderId, DateTime.Now);
             CurrentOrder = newOrder;
+
 
 
             // Every time a new order is created, give a new punch in the PunchCard
@@ -128,10 +128,15 @@ namespace IceCreamShop
                 {
                     Console.WriteLine("Choose the no. of scoops!");
                     Console.Write("[1] [2] [3]: ");
-                    scoops = Convert.ToInt32(Console.ReadLine());
-                    Console.WriteLine("");
+                    string scoopsInput = Console.ReadLine();
 
-                    if (scoops == 1 || scoops == 2 || scoops == 3)
+                    if (string.IsNullOrWhiteSpace(scoopsInput))
+                    {
+                        Console.WriteLine("Invalid input. Please enter a valid number (1, 2, or 3).");
+                        continue;
+                    }
+
+                    if (int.TryParse(scoopsInput, out scoops) && (scoops == 1 || scoops == 2 || scoops == 3))
                     {
                         break;
                     }
@@ -272,6 +277,11 @@ namespace IceCreamShop
 
                 Console.WriteLine("---------------------------------------------------------------------------------------------------");
                 Console.WriteLine("");
+
+                if (newOrder.Id != CurrentOrder.Id)
+                {
+                    orderId += 1;
+                }
 
                 // Prompting user if they want to add another ice cream
                 bool validInput = false;

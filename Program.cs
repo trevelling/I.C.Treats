@@ -9,6 +9,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Data;
 using System.Drawing;
 using System.Globalization;
 using S10258591_PRG2Assignment;
@@ -27,9 +28,6 @@ namespace IceCreamShop
         {
             try
             {
-                // DICTIONARY [KEY: MemberID, VALUE: List of IceCream Orders]
-                Dictionary<int, List<Order>> customerOrdersDictionary = new Dictionary<int, List<Order>>();
-
                 // QUEUE OF ORDERS FOR GOLD MEMBERS
                 Queue<Order> pointCardGold = new Queue<Order>();
 
@@ -265,6 +263,7 @@ namespace IceCreamShop
         {
             try
             {
+
                 DisplayAllCustomers(customers);
                 Console.WriteLine("");
 
@@ -286,11 +285,12 @@ namespace IceCreamShop
                     break;
                 }
 
-
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
+                UpdateFlavoursCSV(newOrder);
+                UpdateToppingsCSV(newOrder);
+                UpdateOptionsCSV(newOrder);
                 newOrderList.Add(newOrder);
-                newOrder.Id += 1;
 
                 // Checking which queue to put them in
                 if (customers[customerIndex].Rewards.Tier == "Gold")
@@ -301,6 +301,7 @@ namespace IceCreamShop
                 {
                     pointCardRegular.Enqueue(newOrder);
                 }
+    
             }
             catch (FormatException ex)
             {
@@ -316,6 +317,262 @@ namespace IceCreamShop
             }
         }
 
+        static void UpdateFlavoursCSV(Order orders)
+        {
+            try
+            {
+                // Path to the flavours.csv file
+                string csvFilePath = "flavours.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+                
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        // Extract flavor information from the order and write it to the file
+                        foreach (var iceCream in orders.IceCreamList)
+                        {
+                            foreach (var order in iceCream.Flavours)
+                            {
+                                if (order.Premium == true)
+                                {
+                                    sw.WriteLine($"{order.Type},{2}");
+                                }
+                                else
+                                {
+                                    sw.WriteLine($"{order.Type},{0}");
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        static void UpdateToppingsCSV(Order orders)
+        {
+            try
+            {
+                // Path to the toppings.csv file
+                string csvFilePath = "toppings.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        // Extract flavor information from the order and write it to the file
+                        foreach (var iceCream in orders.IceCreamList)
+                        {
+                            foreach (var order in iceCream.Toppings)
+                            {
+                                sw.WriteLine($"{order.Type},{1}");
+                            }
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        static void UpdateOptionsCSV(Order orders)
+        {
+            try
+            {
+                // Path to the options.csv file
+                string csvFilePath = "options.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        // Extract flavor information from the order and write it to the file
+                        foreach (var iceCream in orders.IceCreamList)
+                        {
+                            if (iceCream is Cup cupIceCream)
+                            {
+                                sw.WriteLine($"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
+                            }
+                            else if (iceCream is Cone coneIceCream)
+                            {
+                                // Check if the Cone is dipped and convert boolean to string
+                                string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
+
+                                sw.WriteLine($"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
+                            }
+                            else if (iceCream is Waffle waffleIceCream)
+                            {
+                                sw.WriteLine($"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
+                            }
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        static void UpdateOrdersCSV(Order orders, Customer customers)
+        {
+            try
+            {
+                // Path to the options.csv file
+                string csvFilePath = "orders.csv";
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                    return;
+                }
+
+                // Open the file for appending
+                try
+                {
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                    {
+                        // Extract flavor information from the order and write it to the file
+                        foreach (var iceCream in orders.IceCreamList)
+                        {
+                            // Initialize arrays to store flavor and topping information
+                            string[] flavorColumns = { "", "", "" };
+                            string[] toppingColumns = { "", "", "", "" };
+
+                            // Populate flavorColumns with flavor information
+                            for (int i = 0; i < iceCream.Flavours.Count && i < 3; i++)
+                            {
+                                flavorColumns[i] = iceCream.Flavours[i].Type;
+                            }
+
+                            // Populate toppingColumns with topping information
+                            for (int i = 0; i < iceCream.Toppings.Count && i < 4; i++)
+                            {
+                                toppingColumns[i] = iceCream.Toppings[i].Type;
+                            }
+
+                            // Check if the ice cream is a Cup, Cone, or Waffle and write to the file
+                            if (iceCream is Cup cupIceCream)
+                            {
+                                sw.WriteLine($"{orders.Id},{customers.MemberID},{orders.TimeReceived},{orders.TimeFulfilled},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                            }
+                            else if (iceCream is Cone coneIceCream)
+                            {
+                                // Check if the Cone is dipped and convert boolean to string
+                                string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
+
+                                sw.WriteLine($"{orders.Id},{customers.MemberID},{orders.TimeReceived},{orders.TimeFulfilled},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                            }
+                            else if (iceCream is Waffle waffleIceCream)
+                            {
+                                sw.WriteLine($"{orders.Id},{customers.MemberID},{orders.TimeReceived},{orders.TimeFulfilled},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                            }
+                        }
+                    }
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+
+
         static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
@@ -328,11 +585,11 @@ namespace IceCreamShop
 
                 List<Order> ordersToRemove = new List<Order>(); // Keep track of orders to remove
 
-                foreach (var customer in customers)
+                foreach (var customer in customers) // Search through customer list
                 {
-                    foreach (var order in newOrderList)
+                    foreach (var order in newOrderList) // Search through the orders created
                     {
-                        // Checks if the customer's current order exists and matches newOrderList id
+                        // Checks if the customer's current order id == matches the order id in newOrderList
                         if (customer.CurrentOrder != null && customer.CurrentOrder.Id == order.Id)
                         {
                             if (newOrderList.Count > 0)
@@ -365,8 +622,7 @@ namespace IceCreamShop
                                 // Display all ice creams in all processed orders
                                 Console.WriteLine("Ice Creams in all processed orders:");
                                 Console.WriteLine(order);
-                                DateTime timeFulfilled = DateTime.Now;
-                                order.TimeFulfilled = timeFulfilled;
+                                
                                 //customer.OrderHistory.Add(order);
 
                                 foreach (var iceCream in order.IceCreamList)
@@ -406,6 +662,11 @@ namespace IceCreamShop
                                 customer.Rewards.AddPoints(redemptionPoints);
 
                                 Console.WriteLine($"Points before redemption: {customer.Rewards.Points}");
+
+                                // Set the time fulfilled for the entire order
+                                DateTime timeFulfilled = DateTime.Now;
+                                order.TimeFulfilled = timeFulfilled;
+
                                 Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
 
                                 Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
@@ -418,6 +679,8 @@ namespace IceCreamShop
                                 customer.Rewards.Punch();
                                 totalBill = 0;
                                 Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                                UpdateOrdersCSV(order, customer);
 
                                 // Add the order to the list of orders to remove
                                 ordersToRemove.Add(order);
