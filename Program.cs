@@ -287,11 +287,11 @@ namespace IceCreamShop
 
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
-                UpdateFlavoursCSV(newOrder);
-                UpdateToppingsCSV(newOrder);
-                UpdateOptionsCSV(newOrder);
+                //UpdateFlavoursCSV(newOrder);
+                //UpdateToppingsCSV(newOrder);
+                //UpdateOptionsCSV(newOrder);
                 newOrderList.Add(newOrder);
-
+              
                 // Checking which queue to put them in
                 if (customers[customerIndex].Rewards.Tier == "Gold")
                 {
@@ -582,7 +582,6 @@ namespace IceCreamShop
                 bool birthday = false;
                 bool ordersToProcess = false; 
 
-
                 List<Order> ordersToRemove = new List<Order>(); // Keep track of orders to remove
 
                 foreach (var customer in customers) // Search through customer list
@@ -680,7 +679,7 @@ namespace IceCreamShop
                                 totalBill = 0;
                                 Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
-                                UpdateOrdersCSV(order, customer);
+                                //UpdateOrdersCSV(order, customer);
 
                                 // Add the order to the list of orders to remove
                                 ordersToRemove.Add(order);

@@ -1,4 +1,10 @@
-﻿using System;
+﻿//==========================================================
+// Student Number : S10258591
+// Student Name : Tevel Sho
+// Partner Name : Brayden Saga
+//==========================================================
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -36,12 +42,15 @@ namespace IceCreamShop
 
         public Order MakeOrder()
         {
-            int orderId = 1;
+            //ISSUE
+            if (CurrentOrder != null) // Check if customer's current order is not empty
+            {
+                CurrentOrder.Id += 1;
+            }
+
             // Creating a new Order object that contains the customer's MemberID and the time it was ordered
-            Order newOrder = new Order(orderId, DateTime.Now);
+            Order newOrder = new Order(CurrentOrder?.Id ?? 1, DateTime.Now);
             CurrentOrder = newOrder;
-
-
 
             // Every time a new order is created, give a new punch in the PunchCard
             if (Rewards != null)
@@ -129,6 +138,8 @@ namespace IceCreamShop
                     Console.WriteLine("Choose the no. of scoops!");
                     Console.Write("[1] [2] [3]: ");
                     string scoopsInput = Console.ReadLine();
+
+                    Console.WriteLine("");
 
                     if (string.IsNullOrWhiteSpace(scoopsInput))
                     {
@@ -277,11 +288,6 @@ namespace IceCreamShop
 
                 Console.WriteLine("---------------------------------------------------------------------------------------------------");
                 Console.WriteLine("");
-
-                if (newOrder.Id != CurrentOrder.Id)
-                {
-                    orderId += 1;
-                }
 
                 // Prompting user if they want to add another ice cream
                 bool validInput = false;
