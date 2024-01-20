@@ -43,13 +43,10 @@ namespace IceCreamShop
 
         public Order MakeOrder()
         {
-            //ISSUE
-            // Path to the orders.csv file
             string csvFilePath = "orders.csv";
             int lastOrderId = 0;
             try
             {
-
                 // Check if the file exists
                 if (!File.Exists(csvFilePath))
                 {
@@ -65,8 +62,6 @@ namespace IceCreamShop
                         // Assuming the order ID is the first element in the CSV line
                         string[] fields = lastLine.Split(',');
                         lastOrderId = int.Parse(fields[0]); // Parsing the order ID to an integer
-
-                        Console.WriteLine($"Last Order ID: {lastOrderId}");
                     }
                     else
                     {
@@ -237,17 +232,6 @@ namespace IceCreamShop
                             validFlavour = true;
                             Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
                             flavourList.Add(iceCreamFlavour);
-
-                            /* Append the chosen flavor and its cost to the flavours.csv file
-                            if (premium)
-                            {
-           
-                            }
-                            else
-                            {
-         
-                            }
-                            */
                         }
                         else
                         {
@@ -276,9 +260,6 @@ namespace IceCreamShop
                         // Check if the entered topping is valid
                         if (topping == "sprinkles" || topping == "mochi" || topping == "sago" || topping == "oreos")
                         {
-                            // Append the chosen topping and its cost to the toppings.csv file
-       
-
                             Topping toppings = new Topping(topping);
                             toppingList.Add(toppings);
                             validTopping = true;

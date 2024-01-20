@@ -17,7 +17,6 @@ namespace IceCreamShop
         public string WaffleFlavour { get; set; }
 
         public Waffle() : base() { } // Default Constructor
-
         
         public Waffle(string option, int scoops, List<Flavour> flavours, List<Topping> toppings, string waffleFlavour) : base(option, scoops, flavours, toppings)
         {
@@ -59,7 +58,6 @@ namespace IceCreamShop
             {
                 basePrice += 3.00;
             }
-
             return basePrice;
         }
 

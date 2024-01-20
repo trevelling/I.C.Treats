@@ -289,9 +289,9 @@ namespace IceCreamShop
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
                 
-                //UpdateFlavoursCSV(newOrder);
-                //UpdateToppingsCSV(newOrder);
-                //UpdateOptionsCSV(newOrder);
+                UpdateFlavoursCSV(newOrder);
+                UpdateToppingsCSV(newOrder);
+                UpdateOptionsCSV(newOrder);
                 newOrderList.Add(newOrder);
               
                 // Checking which queue to put them in
@@ -493,87 +493,6 @@ namespace IceCreamShop
             }
         }
 
-        /*
-        static void UpdateOrdersCSV(Order orders, Customer customers)
-        {
-            try
-            {
-                // Path to the options.csv file
-                string csvFilePath = "orders.csv";
-
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-
-                // Open the file for appending
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        // Extract flavor information from the order and write it to the file
-                        foreach (var iceCream in orders.IceCreamList)
-                        {
-                            // Initialize arrays to store flavor and topping information
-                            string[] flavorColumns = { "", "", "" };
-                            string[] toppingColumns = { "", "", "", "" };
-
-                            // Populate flavorColumns with flavor information
-                            for (int i = 0; i < iceCream.Flavours.Count && i < 3; i++)
-                            {
-                                flavorColumns[i] = iceCream.Flavours[i].Type;
-                            }
-
-                            // Populate toppingColumns with topping information
-                            for (int i = 0; i < iceCream.Toppings.Count && i < 4; i++)
-                            {
-                                toppingColumns[i] = iceCream.Toppings[i].Type;
-                            }
-
-                            // Check if the ice cream is a Cup, Cone, or Waffle and write to the file
-                            if (iceCream is Cup cupIceCream)
-                            {
-                                sw.WriteLine($"{orders.Id},{customers.MemberID},{orders.TimeReceived},{orders.TimeFulfilled},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
-                            }
-                            else if (iceCream is Cone coneIceCream)
-                            {
-                                // Check if the Cone is dipped and convert boolean to string
-                                string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
-
-                                sw.WriteLine($"{orders.Id},{customers.MemberID},{orders.TimeReceived},{orders.TimeFulfilled},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
-                            }
-                            else if (iceCream is Waffle waffleIceCream)
-                            {
-                                sw.WriteLine($"{orders.Id},{customers.MemberID},{orders.TimeReceived},{orders.TimeFulfilled},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
-                            }
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-        */
         static void EditLineInFile(string filePath, int orderId, DateTime newFulfillmentTime)
         {
             // Read all lines into a list
@@ -604,9 +523,6 @@ namespace IceCreamShop
             // Write the updated lines back to the file
             File.WriteAllLines(filePath, updatedLines);
         }
-
-
-
 
         static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
@@ -718,6 +634,10 @@ namespace IceCreamShop
                             // Add the order to the list of orders to remove
                             ordersToRemove.Add(order);
                         }
+                        else
+                        {
+                            Console.WriteLine("No orders to process.");
+                        }
                     }
 
                 }
@@ -726,12 +646,6 @@ namespace IceCreamShop
                 foreach (var orderToRemove in ordersToRemove)
                 {
                     newOrderList.Remove(orderToRemove);
-                }
-
-                // Display the message if there are no orders to process
-                if (newOrderList.Count <= 0)
-                {
-                    Console.WriteLine("No orders to process.");
                 }
             }
             catch (FormatException ex)
@@ -748,9 +662,8 @@ namespace IceCreamShop
             }
         }
 
-
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        // (Brayden's Methods)
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Brayden's Methods)
         static void DisplayOrder(Order order)
         {
             if (order != null)

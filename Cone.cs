@@ -57,8 +57,6 @@ namespace IceCreamShop
             {
                 basePrice += 2.00;
             }
-
-
             return basePrice;
         }
 
@@ -88,7 +86,6 @@ namespace IceCreamShop
                 string result = $"A {Option}-IceCream with {Scoops} scoop(s), Flavours: [{flavourString}], Toppings: [{toppingString}]";
                 return result;
             }
-            
         }
     }
 }
