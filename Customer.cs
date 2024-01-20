@@ -11,6 +11,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using S10258591_PRG2Assignment;
 
 namespace IceCreamShop
@@ -43,13 +44,51 @@ namespace IceCreamShop
         public Order MakeOrder()
         {
             //ISSUE
-            if (CurrentOrder != null) // Check if customer's current order is not empty
+            // Path to the orders.csv file
+            string csvFilePath = "orders.csv";
+            int lastOrderId = 0;
+            try
             {
-                CurrentOrder.Id += 1;
+
+                // Check if the file exists
+                if (!File.Exists(csvFilePath))
+                {
+                    Console.WriteLine($"Error: {csvFilePath} file not found.");
+                }
+                else
+                {
+                    // Read the last line of the file
+                    string lastLine = File.ReadLines(csvFilePath).LastOrDefault();
+
+                    if (lastLine != null)
+                    {
+                        // Assuming the order ID is the first element in the CSV line
+                        string[] fields = lastLine.Split(',');
+                        lastOrderId = int.Parse(fields[0]); // Parsing the order ID to an integer
+
+                        Console.WriteLine($"Last Order ID: {lastOrderId}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("The file is empty.");
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error reading from {csvFilePath}: {ex.Message}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Error parsing order ID: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
 
             // Creating a new Order object that contains the customer's MemberID and the time it was ordered
-            Order newOrder = new Order(CurrentOrder?.Id ?? 1, DateTime.Now);
+            Order newOrder = new Order(lastOrderId+1, DateTime.Now);
             CurrentOrder = newOrder;
 
             // Every time a new order is created, give a new punch in the PunchCard
@@ -306,6 +345,64 @@ namespace IceCreamShop
                         Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
                     }
                 }
+            }
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+                {
+                    // Extract flavor information from the order and write it to the file
+                    foreach (var iceCream in CurrentOrder.IceCreamList)
+                    {
+                        // Initialize arrays to store flavor and topping information
+                        string[] flavorColumns = { "", "", "" };
+                        string[] toppingColumns = { "", "", "", "" };
+
+                        // Populate flavorColumns with flavor information
+                        for (int i = 0; i < iceCream.Flavours.Count && i < 3; i++)
+                        {
+                            flavorColumns[i] = iceCream.Flavours[i].Type;
+                        }
+
+                        // Populate toppingColumns with topping information
+                        for (int i = 0; i < iceCream.Toppings.Count && i < 4; i++)
+                        {
+                            toppingColumns[i] = iceCream.Toppings[i].Type;
+                        }
+
+                        // Check if the ice cream is a Cup, Cone, or Waffle and write to the file
+                        if (iceCream is Cup cupIceCream)
+                        {
+                            sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                        }
+                        else if (iceCream is Cone coneIceCream)
+                        {
+                            // Check if the Cone is dipped and convert boolean to string
+                            string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
+
+                            sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                        }
+                        else if (iceCream is Waffle waffleIceCream)
+                        {
+                            sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                        }
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+            }
+            catch (NotSupportedException ex)
+            {
+                Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
             }
             return newOrder;
         }

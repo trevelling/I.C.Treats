@@ -24,6 +24,7 @@ namespace IceCreamShop
 {
     class Program
     {
+        private static int nextOrderId = 1;
         static void Main(string[] args)
         {
             try
@@ -287,6 +288,7 @@ namespace IceCreamShop
 
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
+                
                 //UpdateFlavoursCSV(newOrder);
                 //UpdateToppingsCSV(newOrder);
                 //UpdateOptionsCSV(newOrder);
@@ -491,6 +493,7 @@ namespace IceCreamShop
             }
         }
 
+        /*
         static void UpdateOrdersCSV(Order orders, Customer customers)
         {
             try
@@ -570,6 +573,38 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
+        */
+        static void EditLineInFile(string filePath, int orderId, DateTime newFulfillmentTime)
+        {
+            // Read all lines into a list
+            List<string> lines = new List<string>(File.ReadAllLines(filePath));
+            List<string> updatedLines = new List<string>();
+
+            // Update lines with the specified order ID
+            foreach (var line in lines)
+            {
+                // Split the line into columns
+                string[] columns = line.Split(',');
+
+                // Check if the first column matches the order ID
+                if (int.TryParse(columns[0], out int currentOrderId) && currentOrderId == orderId)
+                {
+                    // Check if the TimeFulfilled column (index 3) is 'NA'
+                    if (columns[3].Trim().Equals("NA", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Replace 'NA' with the new fulfillment time
+                        columns[3] = newFulfillmentTime.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+                    }
+                }
+
+                // Re-join the columns into a single string and add to updatedLines
+                updatedLines.Add(string.Join(",", columns));
+            }
+
+            // Write the updated lines back to the file
+            File.WriteAllLines(filePath, updatedLines);
+        }
+
 
 
 
@@ -586,106 +621,105 @@ namespace IceCreamShop
 
                 foreach (var customer in customers) // Search through customer list
                 {
-                    foreach (var order in newOrderList) // Search through the orders created
+                    Order order = newOrderList[0];
+                    // Checks if the customer's current order id == matches the order id in newOrderList
+                    if (customer.CurrentOrder != null && customer.CurrentOrder.Id == order.Id)
                     {
-                        // Checks if the customer's current order id == matches the order id in newOrderList
-                        if (customer.CurrentOrder != null && customer.CurrentOrder.Id == order.Id)
+                        if (newOrderList.Count > 0)
                         {
-                            if (newOrderList.Count > 0)
+                            ordersToProcess = true;
+
+                            // Process orders from the gold members order queue
+                            while (pointCardGold.Count > 0)
                             {
-                                ordersToProcess = true;
-
-                                // Process orders from the gold members order queue
-                                while (pointCardGold.Count > 0)
-                                {
-                                    pointCardGold.Dequeue();
-                                }
-
-                                // Process orders from the regular members order queue
-                                while (pointCardRegular.Count > 0)
-                                {
-                                    pointCardRegular.Dequeue();
-                                }
-
-                                Console.WriteLine("");
-                                Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                                Console.WriteLine($"{customer.Name} - {customer.MemberID}");
-
-                                if (customer.IsBirthday())
-                                {
-                                    birthday = true;
-                                }
-
-                                Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
-
-                                // Display all ice creams in all processed orders
-                                Console.WriteLine("Ice Creams in all processed orders:");
-                                Console.WriteLine(order);
-                                
-                                //customer.OrderHistory.Add(order);
-
-                                foreach (var iceCream in order.IceCreamList)
-                                {
-                                    Console.WriteLine(iceCream);
-                                    if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
-                                    {
-                                        mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
-                                    }
-                                }
-
-                                double orderMostExpensivePrice = order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
-
-                                // Update the overall most expensive ice cream price
-                                if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
-                                {
-                                    mostExpensiveIceCreamPrice = orderMostExpensivePrice;
-                                }
-                                totalBill += order.CalculateTotal();
-
-                                // Checks if a birthday discount is applicable
-                                if (mostExpensiveIceCreamPrice > 0 && birthday)
-                                {
-                                    // Calculated discounted bill
-                                    totalBill -= mostExpensiveIceCreamPrice;
-
-                                    Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
-                                }
-
-                                int redemptionPoints = (int)Math.Floor(totalBill * 0.72);
-
-                                // Add redemption points to the customer's PointCard
-                                customer.Rewards.AddPoints(redemptionPoints);
-
-                                Console.WriteLine($"Points before redemption: {customer.Rewards.Points}");
-
-                                // Set the time fulfilled for the entire order
-                                DateTime timeFulfilled = DateTime.Now;
-                                order.TimeFulfilled = timeFulfilled;
-
-                                Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
-
-                                Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
-
-                                // Prompt user to press any key for payment and increment punch card
-                                Console.WriteLine("Press [enter] to make payment...");
-                                Console.ReadKey();
-                                Console.WriteLine("Payment has successfully been made");
-                                // Increment the punch card for every ice cream in the order
-                                customer.Rewards.Punch();
-                                totalBill = 0;
-                                Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-
-                                //UpdateOrdersCSV(order, customer);
-
-                                // Add the order to the list of orders to remove
-                                ordersToRemove.Add(order);
+                                pointCardGold.Dequeue();
                             }
+
+                            // Process orders from the regular members order queue
+                            while (pointCardRegular.Count > 0)
+                            {
+                                pointCardRegular.Dequeue();
+                            }
+
+                            Console.WriteLine("");
+                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Console.WriteLine($"{customer.Name} - {customer.MemberID}");
+
+                            if (customer.IsBirthday())
+                            {
+                                birthday = true;
+                            }
+
+                            Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
+
+                            // Display all ice creams in all processed orders
+                            Console.WriteLine("Ice Creams in all processed orders:");
+                            Console.WriteLine(order);
+
+                            //customer.OrderHistory.Add(order);
+
+                            foreach (var iceCream in order.IceCreamList)
+                            {
+                                Console.WriteLine(iceCream);
+                                if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
+                                {
+                                    mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
+                                }
+                            }
+
+                            double orderMostExpensivePrice = order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
+
+                            // Update the overall most expensive ice cream price
+                            if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
+                            {
+                                mostExpensiveIceCreamPrice = orderMostExpensivePrice;
+                            }
+                            totalBill += order.CalculateTotal();
+
+                            // Checks if a birthday discount is applicable
+                            if (mostExpensiveIceCreamPrice > 0 && birthday)
+                            {
+                                // Calculated discounted bill
+                                totalBill -= mostExpensiveIceCreamPrice;
+
+                                Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
+                            }
+
+                            int redemptionPoints = (int)Math.Floor(totalBill * 0.72);
+
+                            // Add redemption points to the customer's PointCard
+                            customer.Rewards.AddPoints(redemptionPoints);
+
+                            Console.WriteLine($"Points before redemption: {customer.Rewards.Points}");
+
+                            // Set the time fulfilled for the entire order
+                            DateTime timeFulfilled = DateTime.Now;
+                            order.TimeFulfilled = timeFulfilled;
+
+                            Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
+
+                            Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
+
+                            // Prompt user to press any key for payment and increment punch card
+                            Console.WriteLine("Press [enter] to make payment...");
+                            Console.ReadKey();
+                            Console.WriteLine("Payment has successfully been made");
+                            // Increment the punch card for every ice cream in the order
+                            customer.Rewards.Punch();
+                            totalBill = 0;
+                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                            EditLineInFile("orders.csv", order.Id, timeFulfilled);
+
+                            // Add the order to the list of orders to remove
+                            ordersToRemove.Add(order);
                         }
                     }
+
                 }
 
                 // Remove the processed orders from the newOrderList
@@ -695,7 +729,7 @@ namespace IceCreamShop
                 }
 
                 // Display the message if there are no orders to process
-                if (!ordersToProcess)
+                if (newOrderList.Count <= 0)
                 {
                     Console.WriteLine("No orders to process.");
                 }
@@ -751,7 +785,6 @@ namespace IceCreamShop
                 i++;
             }
         }
-
         static void DisplayOrderDetails(List<Customer> customerList)
         {
             DisplayAllCustomers(customerList);
@@ -823,7 +856,6 @@ namespace IceCreamShop
             }
             
         }
-        
         static int IntValidation(int start, int end)
         {
             int option = 0;
