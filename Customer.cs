@@ -32,6 +32,7 @@ namespace IceCreamShop
             Name = name;
             MemberID = memberID;
             DOB = dOB;
+            OrderHistory = new List<Order>();
 
             if (Rewards == null) // Checks if the Customer has a PointCard already
             {

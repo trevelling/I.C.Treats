@@ -4,7 +4,6 @@
 // Partner Name : Brayden Saga
 //==========================================================
 
-
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -38,6 +37,7 @@ namespace IceCreamShop
                 // LIST OF CUSTOMER OBJECTS
                 List<Customer> customerList = new List<Customer>();
 
+                // LIST OF NEW ORDERS CREATED
                 List<Order> newOrderList = new List<Order>();
 
                 initCustomers("customers.csv", customerList);
@@ -95,7 +95,6 @@ namespace IceCreamShop
                         {
                             Console.WriteLine("Exiting I.C.Treats....");
                             Console.WriteLine("See you next time!      :)");
-                            Console.ReadKey();
                             break;
                         }
                         else
@@ -139,9 +138,6 @@ namespace IceCreamShop
             Console.WriteLine("-----------------------------------------");
             Console.WriteLine("");
         }
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// (Tevel's Methods)
 
         static void initCustomers(string filePath, List<Customer> customers)
         {
@@ -195,6 +191,9 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Tevel's Methods)
 
         static void DisplayAllCustomers(List<Customer> customers)
         {
@@ -569,11 +568,10 @@ namespace IceCreamShop
                             Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
 
                             // Display all ice creams in all processed orders
-                            Console.WriteLine("Ice Creams in all processed orders:");
                             Console.WriteLine(order);
+                            Console.WriteLine("");
 
-                            //customer.OrderHistory.Add(order);
-
+                            Console.WriteLine("Your Order:");
                             foreach (var iceCream in order.IceCreamList)
                             {
                                 Console.WriteLine(iceCream);
@@ -610,24 +608,71 @@ namespace IceCreamShop
                             // Add redemption points to the customer's PointCard
                             customer.Rewards.AddPoints(redemptionPoints);
 
-                            Console.WriteLine($"Points before redemption: {customer.Rewards.Points}");
+                            Console.WriteLine($"Your Points: {customer.Rewards.Points}");
+                            Console.WriteLine("");
 
-                            // Set the time fulfilled for the entire order
-                            DateTime timeFulfilled = DateTime.Now;
-                            order.TimeFulfilled = timeFulfilled;
+                            if (customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold")
+                            {
+                                // Prompt the user for the option to redeem points
+                                string option;
+                                Console.WriteLine($"CONGRATS! You are now a {customer.Rewards.Tier} member.");
+                                while (true)
+                                {
+                                    Console.Write("Do you want to redeem your points for further discount [Y/N]: ");
+                                    option = Console.ReadLine().ToLower();
 
-                            Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
+                                    if (option == "y" || option == "n")
+                                    {
+                                        break; // Break out of the loop if valid input is provided
+                                    }
 
-                            Console.WriteLine($"Points after redemption: {customer.Rewards.Points}");
+                                    Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+                                }
+
+                                if (option == "y")
+                                {
+                                    // Prompt the user for the amount they want to redeem
+                                    int redeemAmount;
+                                    while (true)
+                                    {
+                                        Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
+                                        string redeemInput = Console.ReadLine();
+
+                                        if (int.TryParse(redeemInput, out redeemAmount))
+                                        {
+                                            // Call the RedeemPoints method
+                                            customer.Rewards.RedeemPoints(redeemAmount * 2); // 1 point = $0.02
+                                            totalBill -= redeemAmount * 0.02; // Deduct redeemed amount from the total bill
+                                            Console.WriteLine("");
+                                            Console.WriteLine($"Final Bill: {totalBill:C}");
+                                            break; // Break out of the loop if valid input is provided
+                                        }
+
+                                        Console.WriteLine("Invalid input. Please enter a valid number.");
+                                    }
+                                }
+                            }
+
+                            Console.WriteLine("");
 
                             // Prompt user to press any key for payment and increment punch card
                             Console.WriteLine("Press [enter] to make payment...");
                             Console.ReadKey();
                             Console.WriteLine("Payment has successfully been made");
                             // Increment the punch card for every ice cream in the order
+
+                            // Set the time fulfilled for the entire order
+                            DateTime timeFulfilled = DateTime.Now;
+                            order.TimeFulfilled = timeFulfilled;
+                            Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
+
+
                             customer.Rewards.Punch();
                             totalBill = 0;
                             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                            // Add processed order to OrderHistory
+                            customer.OrderHistory.Add(order);
 
                             EditLineInFile("orders.csv", order.Id, timeFulfilled);
 
