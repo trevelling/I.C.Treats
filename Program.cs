@@ -18,6 +18,7 @@ using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Xml.Linq;
 using System.Security;
+using System.Xml.Schema;
 
 namespace IceCreamShop
 {
@@ -89,7 +90,9 @@ namespace IceCreamShop
                         else if (option == 8)
                         {
                             // Advanced Option (b) - Display monthly charged amounts breakdown & total charged amounts for the year [Brayden]
-                            DisplayCharges();
+                            Console.Write("Enter the year: ");
+                            int year = Convert.ToInt32(Console.ReadLine());
+                            DisplayCharges(year, customerList);
                         }
                         else if (option == 0)
                         {
@@ -257,7 +260,6 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-
 
         static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
@@ -1039,9 +1041,58 @@ namespace IceCreamShop
             }
         }
 
-        static void DisplayCharges()
+        static void DisplayCharges(int year, List<Customer> customerList)
         {
+            string filePath = "orders.csv";
+            try
+            {
+                //Month to Price
+                Dictionary<int, List<Double>> ordersList = new Dictionary<int, List<Double>>();
+                for (int i = 0; i < 12; i++)
+                {
+                    ordersList[i] = new List<Double>();
+                }
+                foreach (Customer customer in customerList)
+                {
+                    foreach (Order order in customer.OrderHistory)
+                    {
+                        if (order.TimeFulfilled.HasValue)
+                        {
+                            DateTime timeFulfilled = order.TimeFulfilled.Value;
+                            if (timeFulfilled.Year == year)
+                            {
+                                double price = order.CalculateTotal();
+                                ordersList[timeFulfilled.Month].Add(price);
+                            }
+                        }  
+                    }
+                }
 
+                double total = 0;
+                for (int i = 0; i < 12; i++) {
+                    Console.Write($"{new DateTime(1, i + 1, 1).ToString("MMM")} {year}:   $");
+                    double monthTotal = 0;
+                    foreach (double price in ordersList[i])
+                    {
+                        monthTotal += price;
+                    }
+                    Console.WriteLine(monthTotal);
+                    total += monthTotal;
+                }
+                Console.WriteLine("Total:        $" +  total);
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Error parsing order ID: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
         }
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
