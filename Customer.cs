@@ -84,7 +84,7 @@ namespace IceCreamShop
             }
 
             // Creating a new Order object that contains the customer's MemberID and the time it was ordered
-            Order newOrder = new Order(lastOrderId+1, DateTime.Now);
+            Order newOrder = new Order(lastOrderId + 1, DateTime.Now);
             CurrentOrder = newOrder;
 
             // Every time a new order is created, give a new punch in the PunchCard
@@ -99,7 +99,7 @@ namespace IceCreamShop
             while (addMoreIceCreams)
             {
                 int scoops;
-                bool dipped = false; 
+                bool dipped = false;
                 string option;
                 string waffleFlavour = "Original"; // Default 
 
@@ -171,7 +171,7 @@ namespace IceCreamShop
                 while (true)
                 {
                     Console.WriteLine("Choose the no. of scoops!");
-                    Console.Write("[1] [2] [3]: ");
+                    Console.Write("[0] [1] [2] [3]: ");
                     string scoopsInput = Console.ReadLine();
 
                     Console.WriteLine("");
@@ -182,7 +182,7 @@ namespace IceCreamShop
                         continue;
                     }
 
-                    if (int.TryParse(scoopsInput, out scoops) && (scoops == 1 || scoops == 2 || scoops == 3))
+                    if (int.TryParse(scoopsInput, out scoops) && (scoops == 0 || scoops == 1 || scoops == 2 || scoops == 3))
                     {
                         break;
                     }
@@ -193,52 +193,55 @@ namespace IceCreamShop
                 List<Flavour> flavourList = new List<Flavour>();
                 List<Topping> toppingList = new List<Topping>();
 
-                // Choosing premium or non-premium flavour for each scoop
-                for (int scoopNumber = 1; scoopNumber <= scoops; scoopNumber++)
+                if (scoops >= 1)
                 {
-                    bool validFlavour = false;
-
-                    do
+                    // Choosing premium or non-premium flavour for each scoop
+                    for (int scoopNumber = 1; scoopNumber <= scoops; scoopNumber++)
                     {
-                        Console.WriteLine($"Choose your flavor for scoop {scoopNumber}!");
-                        Console.Write("Would you like premium [Y/N]: ");
-                        string userInput = Console.ReadLine().ToLower();
-                        bool premium = userInput.ToLower() == "y";
-                        Console.WriteLine("");
+                        bool validFlavour = false;
 
-                        if (userInput != "y" && userInput != "n")
+                        do
                         {
-                            Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
-                            continue;
-                        }
+                            Console.WriteLine($"Choose your flavor for scoop {scoopNumber}!");
+                            Console.Write("Would you like premium [Y/N]: ");
+                            string userInput = Console.ReadLine().ToLower();
+                            bool premium = userInput.ToLower() == "y";
+                            Console.WriteLine("");
 
-                        Console.WriteLine($"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
+                            if (userInput != "y" && userInput != "n")
+                            {
+                                Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
+                                continue;
+                            }
 
-                        if (premium)
-                        {
-                            Console.Write("[Durian] [Ube] [Sea Salt]: ");
-                        }
-                        else
-                        {
-                            Console.Write("[Vanilla] [Chocolate] [Strawberry]: ");
-                        }
+                            Console.WriteLine($"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
 
-                        string flavour = Console.ReadLine().ToLower();
-                        Console.WriteLine("");
+                            if (premium)
+                            {
+                                Console.Write("[Durian] [Ube] [Sea Salt]: ");
+                            }
+                            else
+                            {
+                                Console.Write("[Vanilla] [Chocolate] [Strawberry]: ");
+                            }
 
-                        // Check if the entered flavor is valid
-                        if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
-                            (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" || flavour.ToLower() == "strawberry")))
-                        {
-                            validFlavour = true;
-                            Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
-                            flavourList.Add(iceCreamFlavour);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid flavor. Please enter a valid flavor.");
-                        }
-                    } while (!validFlavour);
+                            string flavour = Console.ReadLine().ToLower();
+                            Console.WriteLine("");
+
+                            // Check if the entered flavor is valid
+                            if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
+                                (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" || flavour.ToLower() == "strawberry")))
+                            {
+                                validFlavour = true;
+                                Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
+                                flavourList.Add(iceCreamFlavour);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid flavor. Please enter a valid flavor.");
+                            }
+                        } while (!validFlavour);
+                    }
                 }
 
                 // Choosing toppings
@@ -300,7 +303,7 @@ namespace IceCreamShop
                 Console.WriteLine("---------------------------------------------------------------------------------------------------");
                 Console.WriteLine($"{Name} [{MemberID}]");
                 Console.WriteLine($"{CurrentOrder}");
-         
+
 
                 for (int i = 0; i < CurrentOrder.IceCreamList.Count; i++)
                 {
@@ -327,67 +330,69 @@ namespace IceCreamShop
                         Console.WriteLine("Invalid input. Please enter 'Y' for yes or 'N' for no.");
                     }
                 }
-            }
-            try
-            {
-                using (StreamWriter sw = new StreamWriter(csvFilePath, true))
+
+                try
                 {
-                    // Extract flavor information from the order and write it to the file
-                    foreach (var iceCream in CurrentOrder.IceCreamList)
+                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
                     {
-                        // Initialize arrays to store flavor and topping information
-                        string[] flavorColumns = { "", "", "" };
-                        string[] toppingColumns = { "", "", "", "" };
+                        // Extract flavor information from the order and write it to the file
+                        foreach (var iceCreamItem in CurrentOrder.IceCreamList) // Change the variable name to avoid conflicts
+                        {
+                            // Initialize arrays to store flavor and topping information
+                            string[] flavorColumns = { "", "", "" };
+                            string[] toppingColumns = { "", "", "", "" };
 
-                        // Populate flavorColumns with flavor information
-                        for (int i = 0; i < iceCream.Flavours.Count && i < 3; i++)
-                        {
-                            flavorColumns[i] = iceCream.Flavours[i].Type;
-                        }
+                            // Populate flavorColumns with flavor information
+                            for (int i = 0; i < iceCreamItem.Flavours.Count && i < 3; i++)
+                            {
+                                flavorColumns[i] = iceCreamItem.Flavours[i].Type;
+                            }
 
-                        // Populate toppingColumns with topping information
-                        for (int i = 0; i < iceCream.Toppings.Count && i < 4; i++)
-                        {
-                            toppingColumns[i] = iceCream.Toppings[i].Type;
-                        }
+                            // Populate toppingColumns with topping information
+                            for (int i = 0; i < iceCreamItem.Toppings.Count && i < 4; i++)
+                            {
+                                toppingColumns[i] = iceCreamItem.Toppings[i].Type;
+                            }
 
-                        // Check if the ice cream is a Cup, Cone, or Waffle and write to the file
-                        if (iceCream is Cup cupIceCream)
-                        {
-                            sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
-                        }
-                        else if (iceCream is Cone coneIceCream)
-                        {
-                            // Check if the Cone is dipped and convert boolean to string
-                            string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
+                            // Check if the ice cream is a Cup, Cone, or Waffle and write to the file
+                            if (iceCreamItem is Cup cupIceCream)
+                            {
+                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                            }
+                            else if (iceCreamItem is Cone coneIceCream)
+                            {
+                                // Check if the Cone is dipped and convert boolean to string
+                                string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
 
-                            sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
-                        }
-                        else if (iceCream is Waffle waffleIceCream)
-                        {
-                            sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                            }
+                            else if (iceCreamItem is Waffle waffleIceCream)
+                            {
+                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                            }
                         }
                     }
                 }
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-            }
-            catch (NotSupportedException ex)
-            {
-                Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
+                }
+                catch (NotSupportedException ex)
+                {
+                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
+                }
             }
             return newOrder;
         }
+
 
         public bool IsBirthday()
         {
