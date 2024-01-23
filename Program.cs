@@ -18,6 +18,7 @@ using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Xml.Linq;
 using System.Security;
+using System.Xml.Schema;
 
 namespace IceCreamShop
 {
@@ -89,7 +90,9 @@ namespace IceCreamShop
                         else if (option == 8)
                         {
                             // Advanced Option (b) - Display monthly charged amounts breakdown & total charged amounts for the year [Brayden]
-                            DisplayCharges();
+                            Console.Write("Enter the year: ");
+                            int year = Convert.ToInt32(Console.ReadLine());
+                            DisplayCharges(year, customerList);
                         }
                         else if (option == 0)
                         {
@@ -192,8 +195,9 @@ namespace IceCreamShop
             }
         }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// (Tevel's Methods)
+        
+        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // (Tevel's Methods)
 
         static void DisplayAllCustomers(List<Customer> customers)
         {
@@ -209,7 +213,7 @@ namespace IceCreamShop
 
                 for (int i = 0; i < customers.Count; i++)
                 {
-                    Console.WriteLine($"{$"[{i + 1}]", -5}{customers[i].ToString()}");
+                    Console.WriteLine($"{$"[{i + 1}]",-5}{customers[i].ToString()}");
                 }
             }
             catch (Exception ex)
@@ -258,7 +262,6 @@ namespace IceCreamShop
             }
         }
 
-
         static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
@@ -287,12 +290,10 @@ namespace IceCreamShop
 
                 // Creating a new Order for the customer selected
                 Order newOrder = customers[customerIndex].MakeOrder();
-                
-                UpdateFlavoursCSV(newOrder);
-                UpdateToppingsCSV(newOrder);
+
                 UpdateOptionsCSV(newOrder);
                 newOrderList.Add(newOrder);
-              
+
                 // Checking which queue to put them in
                 if (customers[customerIndex].Rewards.Tier == "Gold")
                 {
@@ -302,7 +303,7 @@ namespace IceCreamShop
                 {
                     pointCardRegular.Enqueue(newOrder);
                 }
-    
+
             }
             catch (FormatException ex)
             {
@@ -318,116 +319,6 @@ namespace IceCreamShop
             }
         }
 
-        static void UpdateFlavoursCSV(Order orders)
-        {
-            try
-            {
-                // Path to the flavours.csv file
-                string csvFilePath = "flavours.csv";
-
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-                
-                // Open the file for appending
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        // Extract flavor information from the order and write it to the file
-                        foreach (var iceCream in orders.IceCreamList)
-                        {
-                            foreach (var order in iceCream.Flavours)
-                            {
-                                if (order.Premium == true)
-                                {
-                                    sw.WriteLine($"{order.Type},{2}");
-                                }
-                                else
-                                {
-                                    sw.WriteLine($"{order.Type},{0}");
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        static void UpdateToppingsCSV(Order orders)
-        {
-            try
-            {
-                // Path to the toppings.csv file
-                string csvFilePath = "toppings.csv";
-
-                // Check if the file exists
-                if (!File.Exists(csvFilePath))
-                {
-                    Console.WriteLine($"Error: {csvFilePath} file not found.");
-                    return;
-                }
-
-                // Open the file for appending
-                try
-                {
-                    using (StreamWriter sw = new StreamWriter(csvFilePath, true))
-                    {
-                        // Extract flavor information from the order and write it to the file
-                        foreach (var iceCream in orders.IceCreamList)
-                        {
-                            foreach (var order in iceCream.Toppings)
-                            {
-                                sw.WriteLine($"{order.Type},{1}");
-                            }
-                        }
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error writing to {csvFilePath}: {ex.Message}");
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    Console.WriteLine($"Error: Unauthorized access to {csvFilePath}: {ex.Message}");
-                }
-                catch (NotSupportedException ex)
-                {
-                    Console.WriteLine($"Error: The operation is not supported for {csvFilePath}: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred while writing to {csvFilePath}: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-            }
-        }
 
         static void UpdateOptionsCSV(Order orders)
         {
@@ -530,7 +421,7 @@ namespace IceCreamShop
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
                 bool birthday = false;
-                bool ordersToProcess = false; 
+                bool ordersToProcess = false;
 
                 List<Order> ordersToRemove = new List<Order>(); // Keep track of orders to remove
 
@@ -707,8 +598,8 @@ namespace IceCreamShop
             }
         }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// (Brayden's Methods)
+        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // (Brayden's Methods)
         static void DisplayOrder(Order order)
         {
             if (order != null)
@@ -736,8 +627,8 @@ namespace IceCreamShop
         {
             int i = 1;
             foreach (Order order in orders)
-            {   
-                
+            {
+
                 Console.WriteLine($"Order No:[{i}]");
                 DisplayOrder(order);
                 i++;
@@ -763,19 +654,19 @@ namespace IceCreamShop
                     }
                     else
                     {
-                        valid= true;
+                        valid = true;
                     }
                 }
                 catch (FormatException) { Console.WriteLine("Invalid input. Please enter a valid number."); }
                 catch (OverflowException) { Console.WriteLine("Input is not a 32-bit signed integer. Please enter a 32-bit signed integer."); }
                 catch (Exception ex) { Console.WriteLine($"An unexpected error occurred: {ex.Message}"); }
             }
-            Customer customer = customerList[option-1];
+            Customer customer = customerList[option - 1];
             try
             {
                 List<Order> orderHistory = customer.OrderHistory;
                 Order currentOrder = customer.CurrentOrder;
-                if (currentOrder == null && orderHistory == null) 
+                if (currentOrder == null && orderHistory == null)
                 {
                     Console.WriteLine("No data found. ");
                     return;
@@ -812,7 +703,7 @@ namespace IceCreamShop
             {
                 Console.WriteLine("No customer data found.");
             }
-            
+
         }
         static int IntValidation(int start, int end)
         {
@@ -1039,10 +930,60 @@ namespace IceCreamShop
             }
         }
 
-        static void DisplayCharges()
+        static void DisplayCharges(int year, List<Customer> customerList)
         {
+            string filePath = "orders.csv";
+            try
+            {
+                //Month to Price
+                Dictionary<int, List<Double>> ordersList = new Dictionary<int, List<Double>>();
+                for (int i = 0; i < 12; i++)
+                {
+                    ordersList[i] = new List<Double>();
+                }
+                foreach (Customer customer in customerList)
+                {
+                    foreach (Order order in customer.OrderHistory)
+                    {
+                        if (order.TimeFulfilled.HasValue)
+                        {
+                            DateTime timeFulfilled = order.TimeFulfilled.Value;
+                            if (timeFulfilled.Year == year)
+                            {
+                                double price = order.CalculateTotal();
+                                ordersList[timeFulfilled.Month].Add(price);
+                            }
+                        }
+                    }
+                }
 
+                double total = 0;
+                for (int i = 0; i < 12; i++)
+                {
+                    Console.Write($"{new DateTime(1, i + 1, 1).ToString("MMM")} {year}:   $");
+                    double monthTotal = 0;
+                    foreach (double price in ordersList[i])
+                    {
+                        monthTotal += price;
+                    }
+                    Console.WriteLine(monthTotal);
+                    total += monthTotal;
+                }
+                Console.WriteLine("Total:        $" + total);
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Error parsing order ID: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
         }
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }

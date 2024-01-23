@@ -41,23 +41,79 @@ namespace IceCreamShop
                 basePrice = 9.50;
             }
 
-            // Add extra cost for premium flavours
-            foreach (var flavour in Flavours)
-            {
-                if (flavour.Premium)
-                {
-                    basePrice += 2.00 * flavour.Quantity;
-                }
-            }
-
-            // Toppings 
-            basePrice += 1.00 * Toppings.Count;
-
             // Waffle Flavour
-            if (WaffleFlavour.ToLower() == "Red Velvet" || WaffleFlavour.ToLower() == "Charcoal" || WaffleFlavour.ToLower() == "Pandan")
+            if (WaffleFlavour.ToLower() == "red velvet" || WaffleFlavour.ToLower() == "charcoal" || WaffleFlavour.ToLower() == "pandan")
             {
                 basePrice += 3.00;
             }
+
+            string filePathFlavoursCsv = "flavours.csv";
+            using (StreamReader sr = new StreamReader(filePathFlavoursCsv))
+            {
+                // Skip the header line
+                sr.ReadLine();
+
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    string[] lines = line.Split(',');
+
+                    if (lines.Length == 2)
+                    {
+                        string flavour = lines[0].Trim();
+                        string costStr = lines[1].Trim();
+                        if (double.TryParse(costStr, out double cost))
+                        {
+                            foreach (var flavours in Flavours)
+                            {
+                                if (flavours.Type == flavour.ToLower() && flavours.Premium)
+                                {
+                                    basePrice += cost;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid cost format: {costStr}. Skipping.");
+                        }
+                    }
+                }
+            }
+
+            string filePathToppingsCsv = "toppings.csv";
+            using (StreamReader sr = new StreamReader(filePathToppingsCsv))
+            {
+                // Skip the header line
+                sr.ReadLine();
+
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    string[] lines = line.Split(',');
+
+                    if (lines.Length == 2)
+                    {
+                        string topping = lines[0].Trim();
+                        string costStr = lines[1].Trim();
+                        if (double.TryParse(costStr, out double cost))
+                        {
+                            foreach (var toppings in Toppings)
+                            {
+                                if (toppings.Type == topping.ToLower())
+                                {
+                                    basePrice += cost;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid cost format: {costStr}. Skipping.");
+                        }
+                    }
+                }
+            }
+
             return basePrice;
         }
 

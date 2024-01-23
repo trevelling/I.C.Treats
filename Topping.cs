@@ -18,7 +18,6 @@ namespace IceCreamShop
 
         public Topping()
         {
-            Type = string.Empty;
         } // Default Constructor
 
         public Topping(string type)

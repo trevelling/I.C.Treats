@@ -189,7 +189,6 @@ namespace IceCreamShop
 
                     Console.WriteLine("Invalid input. Please enter a valid number (1, 2, or 3).");
                 }
-
                 List<Flavour> flavourList = new List<Flavour>();
                 List<Topping> toppingList = new List<Topping>();
 
@@ -198,6 +197,7 @@ namespace IceCreamShop
                     // Choosing premium or non-premium flavour for each scoop
                     for (int scoopNumber = 1; scoopNumber <= scoops; scoopNumber++)
                     {
+
                         bool validFlavour = false;
 
                         do

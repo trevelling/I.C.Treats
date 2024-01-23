@@ -40,17 +40,72 @@ namespace IceCreamShop
                 basePrice = 6.50;
             }
 
-            // Add extra cost for premium flavours
-            foreach (var flavour in Flavours)
+            string filePathFlavoursCsv = "flavours.csv";
+            using (StreamReader sr = new StreamReader(filePathFlavoursCsv))
             {
-                if (flavour.Premium)
+                // Skip the header line
+                sr.ReadLine();
+
+                while (!sr.EndOfStream)
                 {
-                    basePrice += 2.00 * flavour.Quantity;
+                    string line = sr.ReadLine();
+                    string[] lines = line.Split(',');
+
+                    if (lines.Length == 2)
+                    {
+                        string flavour = lines[0].Trim();
+                        string costStr = lines[1].Trim();
+                        if (double.TryParse(costStr, out double cost))
+                        {
+                            foreach (var flavours in Flavours)
+                            {
+                                if (flavours.Type == flavour.ToLower() && flavours.Premium)
+                                {
+                                    basePrice += cost;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid cost format: {costStr}. Skipping.");
+                        }
+                    }
                 }
             }
 
-            // Toppings and Chocolate-dipped
-            basePrice += 1.00 * Toppings.Count;
+            string filePathToppingsCsv = "toppings.csv";
+            using (StreamReader sr = new StreamReader(filePathToppingsCsv))
+            {
+                // Skip the header line
+                sr.ReadLine();
+
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    string[] lines = line.Split(',');
+
+                    if (lines.Length == 2)
+                    {
+                        string topping = lines[0].Trim();
+                        string costStr = lines[1].Trim();
+                        if (double.TryParse(costStr, out double cost))
+                        {
+                            foreach (var toppings in Toppings)
+                            {
+                                if (toppings.Type == topping.ToLower())
+                                {
+                                    basePrice += cost;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid cost format: {costStr}. Skipping.");
+                        }
+                    }
+                }
+            }
 
             // Chocolate-dipped
             if (Dipped)
