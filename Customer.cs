@@ -357,18 +357,18 @@ namespace IceCreamShop
                             // Check if the ice cream is a Cup, Cone, or Waffle and write to the file
                             if (iceCreamItem is Cup cupIceCream)
                             {
-                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{""},{cupIceCream.Option},{cupIceCream.Scoops},,,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
                             }
                             else if (iceCreamItem is Cone coneIceCream)
                             {
                                 // Check if the Cone is dipped and convert boolean to string
                                 string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
 
-                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{""},{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
                             }
                             else if (iceCreamItem is Waffle waffleIceCream)
                             {
-                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{"NA"},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
+                                sw.WriteLine($"{CurrentOrder.Id},{this.MemberID},{CurrentOrder.TimeReceived},{""},{waffleIceCream.Option},{waffleIceCream.Scoops},,,{waffleIceCream.WaffleFlavour},{string.Join(",", flavorColumns)},{string.Join(",", toppingColumns)}");
                             }
                         }
                     }
