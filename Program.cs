@@ -956,7 +956,7 @@ namespace IceCreamShop
                             if (timeFulfilled.Year == year)
                             {
                                 double price = order.CalculateTotal();
-                                ordersList[timeFulfilled.Month].Add(price);
+                                ordersList[timeFulfilled.Month-1].Add(price);
                             }
                         }
                     }
