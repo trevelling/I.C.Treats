@@ -200,7 +200,7 @@ namespace IceCreamShop
             }
         }
 
-        
+
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         // (Tevel's Methods)
 
@@ -956,7 +956,7 @@ namespace IceCreamShop
                             if (timeFulfilled.Year == year)
                             {
                                 double price = order.CalculateTotal();
-                                ordersList[timeFulfilled.Month-1].Add(price);
+                                ordersList[timeFulfilled.Month - 1].Add(price); //decrease by 1, because list is 0 indexed
                             }
                         }
                     }
@@ -1089,17 +1089,10 @@ namespace IceCreamShop
                 int orderId = orderEntry.Key;
                 Order order = orderEntry.Value;
 
-                if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
-                    customerLookup.TryGetValue(memberId, out Customer customer))
-                {
-                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
-                    foreach (Order o in customer.OrderHistory)
-                    {
-                        customer.Rewards.Punch();
-                    }
-                }
             }
+            // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
+
         static bool IsPremium(string type)
         {
             type = type.ToLower();
@@ -1112,7 +1105,5 @@ namespace IceCreamShop
                 return false;
             }
         }
-
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }
