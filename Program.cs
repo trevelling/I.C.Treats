@@ -27,6 +27,7 @@ namespace IceCreamShop
     class Program
     {
         private static int nextOrderId = 1;
+
         static void Main(string[] args)
         {
 
@@ -254,7 +255,8 @@ namespace IceCreamShop
                 do
                 {
                     Console.Write("Enter your Date of Birth (dd/MM/yyyy): ");
-                } while (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dob));
+                } while (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                             DateTimeStyles.None, out dob));
 
                 // Rest of the code remains unchanged
                 Customer newCustomer = new Customer(name, id, dob);
@@ -267,7 +269,9 @@ namespace IceCreamShop
                 {
                     writer.WriteLine($"{name},{id},{dob.ToString("dd/MM/yyyy")}");
                 }
-                Console.WriteLine($"!NEW Customer! \n\n\t Name - {name} \n\t MemberID {id} \n\t DOB - {dob.ToString("dd/MM/yyyy")} \n\nhas been successfully registered");
+
+                Console.WriteLine(
+                    $"!NEW Customer! \n\n\t Name - {name} \n\t MemberID {id} \n\t DOB - {dob.ToString("dd/MM/yyyy")} \n\nhas been successfully registered");
             }
             catch (IOException ex)
             {
@@ -284,7 +288,8 @@ namespace IceCreamShop
         }
 
 
-        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
+        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular,
+            List<Order> newOrderList)
         {
             try
             {
@@ -365,18 +370,21 @@ namespace IceCreamShop
                         {
                             if (iceCream is Cup cupIceCream)
                             {
-                                sw.WriteLine($"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
+                                sw.WriteLine(
+                                    $"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
                             }
                             else if (iceCream is Cone coneIceCream)
                             {
                                 // Check if the Cone is dipped and convert boolean to string
                                 string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
 
-                                sw.WriteLine($"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
+                                sw.WriteLine(
+                                    $"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
                             }
                             else if (iceCream is Waffle waffleIceCream)
                             {
-                                sw.WriteLine($"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
+                                sw.WriteLine(
+                                    $"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
                             }
                         }
                     }
@@ -435,7 +443,8 @@ namespace IceCreamShop
             File.WriteAllLines(filePath, updatedLines);
         }
 
-        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
+        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold,
+            Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
             {
@@ -469,7 +478,8 @@ namespace IceCreamShop
                             }
 
                             Console.WriteLine("");
-                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Console.WriteLine(
+                                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                             Console.WriteLine($"{customer.Name} - {customer.MemberID}");
 
                             if (customer.IsBirthday())
@@ -493,13 +503,15 @@ namespace IceCreamShop
                                 }
                             }
 
-                            double orderMostExpensivePrice = order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
+                            double orderMostExpensivePrice =
+                                order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
 
                             // Update the overall most expensive ice cream price
                             if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
                             {
                                 mostExpensiveIceCreamPrice = orderMostExpensivePrice;
                             }
+
                             totalBill += order.CalculateTotal();
 
                             // Checks if a birthday discount is applicable
@@ -508,7 +520,8 @@ namespace IceCreamShop
                                 // Calculated discounted bill
                                 totalBill -= mostExpensiveIceCreamPrice;
 
-                                Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
+                                Console.WriteLine(
+                                    $"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
                             }
                             else
                             {
@@ -554,7 +567,8 @@ namespace IceCreamShop
                                         {
                                             // Call the RedeemPoints method
                                             customer.Rewards.RedeemPoints(redeemAmount * 2); // 1 point = $0.02
-                                            totalBill -= redeemAmount * 0.02; // Deduct redeemed amount from the total bill
+                                            totalBill -=
+                                                redeemAmount * 0.02; // Deduct redeemed amount from the total bill
                                             Console.WriteLine("");
                                             Console.WriteLine($"Final Bill: {totalBill:C}");
                                             break; // Break out of the loop if valid input is provided
@@ -578,7 +592,8 @@ namespace IceCreamShop
 
                             customer.Rewards.Punch();
                             totalBill = 0;
-                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Console.WriteLine(
+                                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
                             // Add processed order to OrderHistory
                             customer.OrderHistory.Add(order);
@@ -633,14 +648,17 @@ namespace IceCreamShop
                     {
                         Console.WriteLine($"    {flavour.Quantity} scoops of {flavour.Type}");
                     }
+
                     if (ToppingList.Count > 0)
                     {
                         Console.WriteLine($"    Topped with: {String.Join(", ", ToppingList)}");
                     }
+
                     j++;
                 }
             }
         }
+
         static void DisplayAllCurrentOrders(Queue<Order> orders)
         {
             int i = 1;
@@ -652,6 +670,7 @@ namespace IceCreamShop
                 i++;
             }
         }
+
         static void DisplayOrderDetails(List<Customer> customerList)
         {
             DisplayAllCustomers(customerList);
@@ -675,10 +694,20 @@ namespace IceCreamShop
                         valid = true;
                     }
                 }
-                catch (FormatException) { Console.WriteLine("Invalid input. Please enter a valid number."); }
-                catch (OverflowException) { Console.WriteLine("Input is not a 32-bit signed integer. Please enter a 32-bit signed integer."); }
-                catch (Exception ex) { Console.WriteLine($"An unexpected error occurred: {ex.Message}"); }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid number.");
+                }
+                catch (OverflowException)
+                {
+                    Console.WriteLine("Input is not a 32-bit signed integer. Please enter a 32-bit signed integer.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                }
             }
+
             Customer customer = customerList[option - 1];
             try
             {
@@ -689,12 +718,14 @@ namespace IceCreamShop
                     Console.WriteLine("No data found. ");
                     return;
                 }
+
                 if (currentOrder != null)
                 {
                     Console.WriteLine($"{customer.Name}'s Current Order\r\n-------------------");
                     Console.WriteLine("Date Received: " + currentOrder.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
                     DisplayOrder(currentOrder);
                 }
+
                 if (orderHistory != null)
                 {
                     Console.WriteLine($"{customer.Name}'s Past Orders\r\n-------------------");
@@ -712,6 +743,7 @@ namespace IceCreamShop
                         {
                             Console.WriteLine("Not yet fulfilled");
                         }
+
                         DisplayOrder(order);
                         i++;
                     }
@@ -723,6 +755,7 @@ namespace IceCreamShop
             }
 
         }
+
         static int IntValidation(int start, int end)
         {
             int option = 0;
@@ -758,8 +791,10 @@ namespace IceCreamShop
                     Console.WriteLine($"An unexpected error occurred: {ex.Message}");
                 }
             }
+
             return option;
         }
+
         static void ModifyOrderDetails(List<Customer> customerList)
         {
             DisplayAllCustomers(customerList);
@@ -768,7 +803,8 @@ namespace IceCreamShop
             Customer customer = customerList[option - 1];
             Order currentOrder = customer.CurrentOrder;
             DisplayOrder(currentOrder);
-            Console.WriteLine("[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
+            Console.WriteLine(
+                "[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
             Console.Write("Enter option: ");
             option = IntValidation(1, 3);
             List<IceCream> iceCreamList = currentOrder.IceCreamList;
@@ -822,7 +858,8 @@ namespace IceCreamShop
                     Console.WriteLine("");
 
                     if (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
-                        validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" && validWaffleFlavour.ToLower() != "redvelvet")
+                        validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" &&
+                        validWaffleFlavour.ToLower() != "redvelvet")
                     {
                         Console.WriteLine("Invalid waffle flavour. Please enter a valid waffle flavour.");
                     }
@@ -873,7 +910,8 @@ namespace IceCreamShop
                         continue;
                     }
 
-                    Console.WriteLine($"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
+                    Console.WriteLine(
+                        $"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
 
                     if (premium)
                     {
@@ -888,8 +926,10 @@ namespace IceCreamShop
                     Console.WriteLine("");
 
                     // Check if the entered flavor is valid
-                    if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
-                        (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" || flavour.ToLower() == "strawberry")))
+                    if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" ||
+                                     flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
+                        (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" ||
+                                      flavour.ToLower() == "strawberry")))
                     {
                         validFlavour = true;
                         Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
@@ -915,7 +955,7 @@ namespace IceCreamShop
 
                     if (topping == "n")
                     {
-                        exitToppings = true;  // Set exitToppings to true to break out of the for loop
+                        exitToppings = true; // Set exitToppings to true to break out of the for loop
                         break;
                     }
 
@@ -959,6 +999,7 @@ namespace IceCreamShop
                 {
                     ordersList[i] = new List<Double>();
                 }
+
                 foreach (Customer customer in customerList)
                 {
                     foreach (Order order in customer.OrderHistory)
@@ -984,9 +1025,11 @@ namespace IceCreamShop
                     {
                         monthTotal += price;
                     }
+
                     Console.WriteLine(monthTotal);
                     total += monthTotal;
                 }
+
                 Console.WriteLine("Total:      $" + total);
             }
             catch (IOException ex)
@@ -1014,6 +1057,7 @@ namespace IceCreamShop
                     customerLookup.Add(customer.MemberID, customer);
                 }
             }
+
             Dictionary<int, Order> ordersDict = new Dictionary<int, Order>();
             string[] lines = File.ReadAllLines(csvFilePath); //orders.csv
             for (int i = 1; i < lines.Length; i++)
@@ -1029,7 +1073,7 @@ namespace IceCreamShop
                 DateTime timeFufilled = DateTime.Parse(columns[3]);
                 List<String> fList = new List<String>() { columns[8], columns[9], columns[10] };
                 List<Flavour> flavourList = new List<Flavour>();
-                if (fList[0] == fList[1] && fList[1] == fList[2])  //If all the flavours are the same
+                if (fList[0] == fList[1] && fList[1] == fList[2]) //If all the flavours are the same
                 {
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 3);
                     flavourList.Add(flavour);
@@ -1064,6 +1108,7 @@ namespace IceCreamShop
                     Flavour flavour2 = new Flavour(fList[2], IsPremium(fList[2]), 1);
                     flavourList.Add(flavour2);
                 }
+
                 List<Topping> toppingList = new List<Topping>();
                 for (int j = 11; j <= 14; j++)
                 {
@@ -1073,6 +1118,7 @@ namespace IceCreamShop
                         toppingList.Add(topping);
                     }
                 }
+
                 // 3. Handle orders and ice creams
                 if (!ordersDict.TryGetValue(orderId, out var order))
                 {
@@ -1080,6 +1126,7 @@ namespace IceCreamShop
                     order.TimeFulfilled = timeFufilled;
                     ordersDict[orderId] = order;
                 }
+
                 IceCream iceCream = null;
                 if (option == "Cone")
                 {
@@ -1095,29 +1142,87 @@ namespace IceCreamShop
                 {
                     iceCream = new Cup("Cup", scoops, flavourList, toppingList);
                 }
+
                 order.AddIceCream(iceCream);
             }
+
             foreach (var orderEntry in ordersDict)
             {
                 int orderId = orderEntry.Key;
                 Order order = orderEntry.Value;
 
-        static void DisplayCharges()
-        {
+            }
 
-        static bool IsPremium(string type)
-        {
-            type = type.ToLower();
-            if (type == "ube" || type == "durian" || type == "sea salt")
+            static void DisplayCharges(int year, List<Customer> customerList)
             {
-                return true;
+                string filePath = "orders.csv";
+                try
+                {
+                    //Month to Price
+                    Dictionary<int, List<Double>> ordersList = new Dictionary<int, List<Double>>();
+                    for (int i = 0; i < 12; i++)
+                    {
+                        ordersList[i] = new List<Double>();
+                    }
+                    foreach (Customer customer in customerList)
+                    {
+                        foreach (Order order in customer.OrderHistory)
+                        {
+                            if (order.TimeFulfilled.HasValue)
+                            {
+                                DateTime timeFulfilled = order.TimeFulfilled.Value;
+                                if (timeFulfilled.Year == year)
+                                {
+                                    double price = order.CalculateTotal();
+                                    ordersList[timeFulfilled.Month - 1].Add(price);
+                                }
+                            }
+                        }
+                    }
+
+                    double total = 0;
+                    for (int i = 0; i < 12; i++)
+                    {
+                        Console.Write($"{new DateTime(1, i + 1, 1).ToString("MMM")} {year}:   $");
+                        double monthTotal = 0;
+                        foreach (double price in ordersList[i])
+                        {
+                            monthTotal += price;
+                        }
+                        Console.WriteLine(monthTotal);
+                        total += monthTotal;
+                    }
+                    Console.WriteLine("Total:      $" + total);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
+                }
+                catch (FormatException ex)
+                {
+                    Console.WriteLine($"Error parsing order ID: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                }
             }
-            else
+
+
+            static bool IsPremium(string type)
             {
-                return false;
+                type = type.ToLower();
+                if (type == "ube" || type == "durian" || type == "sea salt")
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
+
+            // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
-
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }
