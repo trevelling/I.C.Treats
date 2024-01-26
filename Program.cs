@@ -201,8 +201,8 @@ namespace IceCreamShop
         }
 
         
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        // (Tevel's Methods)
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Tevel's Methods)
 
         static void DisplayAllCustomers(List<Customer> customers)
         {
@@ -603,8 +603,8 @@ namespace IceCreamShop
             }
         }
 
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        // (Brayden's Methods)
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Brayden's Methods)
         static void DisplayOrder(Order order)
         {
             if (order != null)
@@ -956,7 +956,7 @@ namespace IceCreamShop
                             if (timeFulfilled.Year == year)
                             {
                                 double price = order.CalculateTotal();
-                                ordersList[timeFulfilled.Month-1].Add(price);
+                                ordersList[timeFulfilled.Month-1].Add(price); //decrease by 1, because list is 0 indexed
                             }
                         }
                     }
@@ -1089,30 +1089,7 @@ namespace IceCreamShop
                 int orderId = orderEntry.Key;
                 Order order = orderEntry.Value;
 
-                if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
-                    customerLookup.TryGetValue(memberId, out Customer customer))
-                {
-                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
-                    foreach (Order o in customer.OrderHistory)
-                    {
-                        customer.Rewards.Punch();
-                    }
-                }
-            }
         }
-        static bool IsPremium(string type)
-        {
-            type = type.ToLower();
-            if (type == "ube" || type == "durian" || type == "sea salt")
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }
