@@ -25,7 +25,7 @@ namespace IceCreamShop
         public List<Order> OrderHistory { get; set; }
         public PointCard Rewards { get; set; }
 
-        public Customer() {} // Default Constructor
+        public Customer() { } // Default Constructor
 
         public Customer(string name, int memberID, DateTime dOB)
         {
@@ -178,7 +178,7 @@ namespace IceCreamShop
 
                     if (string.IsNullOrWhiteSpace(scoopsInput))
                     {
-                        Console.WriteLine("Invalid input. Please enter a valid number (1, 2, or 3).");
+                        Console.WriteLine("Invalid input. Please enter a valid number (0, 1, 2, or 3).");
                         continue;
                     }
 
@@ -187,7 +187,7 @@ namespace IceCreamShop
                         break;
                     }
 
-                    Console.WriteLine("Invalid input. Please enter a valid number (1, 2, or 3).");
+                    Console.WriteLine("Invalid input. Please enter a valid number (0, 1, 2, or 3).");
                 }
                 List<Flavour> flavourList = new List<Flavour>();
                 List<Topping> toppingList = new List<Topping>();

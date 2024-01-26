@@ -44,10 +44,9 @@ namespace IceCreamShop
                 // LIST OF NEW ORDERS CREATED
                 List<Order> newOrderList = new List<Order>();
 
-                Console.WriteLine("Run Customer init");
                 initCustomers("customers.csv", customerList);
-
                 ReadExistingCustomersFromCsv("orders.csv", customerList);
+
                 while (true)
                 {
                     try
@@ -200,9 +199,9 @@ namespace IceCreamShop
             }
         }
 
-        
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// (Tevel's Methods)
+
+        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // (Tevel's Methods)
 
         static void DisplayAllCustomers(List<Customer> customers)
         {
@@ -231,15 +230,33 @@ namespace IceCreamShop
         {
             try
             {
-                Console.Write("Enter your name: ");
-                string name = Console.ReadLine();
+                Console.WriteLine("");
 
-                Console.Write("Enter your ID Number: ");
-                int id = Convert.ToInt32(Console.ReadLine());
+                // Input validation for Name (should only allow strings)
+                string name;
+                do
+                {
+                    Console.Write("Enter your name: ");
+                    name = Console.ReadLine().Trim();
+                    if (string.IsNullOrWhiteSpace(name) || name.Any(char.IsDigit))
+                        Console.WriteLine("Invalid name. Please enter a valid name.");
+                } while (string.IsNullOrWhiteSpace(name) || name.Any(char.IsDigit));
 
-                Console.Write("Enter in your Date of Birth: ");
-                DateTime dob = Convert.ToDateTime(Console.ReadLine());
+                // Input validation for ID Number (should only allow positive integers of length 6)
+                int id;
+                do
+                {
+                    Console.Write("Enter your ID Number (e.g. 123456): ");
+                } while (!int.TryParse(Console.ReadLine(), out id) || id <= 0 || id.ToString().Length != 6);
 
+                // Input validation for Date of Birth (should be in the format "dd/MM/yyyy")
+                DateTime dob;
+                do
+                {
+                    Console.Write("Enter your Date of Birth (dd/MM/yyyy): ");
+                } while (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dob));
+
+                // Rest of the code remains unchanged
                 Customer newCustomer = new Customer(name, id, dob);
                 PointCard pointCard = new PointCard(0, 0);
                 newCustomer.Rewards = pointCard;
@@ -252,7 +269,6 @@ namespace IceCreamShop
                 }
                 Console.WriteLine($"!NEW Customer! \n\n\t Name - {name} \n\t MemberID {id} \n\t DOB - {dob.ToString("dd/MM/yyyy")} \n\nhas been successfully registered");
             }
-
             catch (IOException ex)
             {
                 Console.WriteLine($"Error writing to the file: {ex.Message}");
@@ -267,11 +283,11 @@ namespace IceCreamShop
             }
         }
 
+
         static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
             {
-
                 DisplayAllCustomers(customers);
                 Console.WriteLine("");
 
@@ -549,8 +565,6 @@ namespace IceCreamShop
                                 }
                             }
 
-                            Console.WriteLine("");
-
                             // Prompt user to press any key for payment and increment punch card
                             Console.WriteLine("Press [enter] to make payment...");
                             Console.ReadKey();
@@ -561,7 +575,6 @@ namespace IceCreamShop
                             DateTime timeFulfilled = DateTime.Now;
                             order.TimeFulfilled = timeFulfilled;
                             Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
-
 
                             customer.Rewards.Punch();
                             totalBill = 0;
@@ -603,8 +616,8 @@ namespace IceCreamShop
             }
         }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// (Brayden's Methods)
+        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // (Brayden's Methods)
         static void DisplayOrder(Order order)
         {
             if (order != null)
@@ -935,10 +948,185 @@ namespace IceCreamShop
             }
         }
 
-        static void DisplayCharges()
+        static void DisplayCharges(int year, List<Customer> customerList)
         {
+            string filePath = "orders.csv";
+            try
+            {
+                //Month to Price
+                Dictionary<int, List<Double>> ordersList = new Dictionary<int, List<Double>>();
+                for (int i = 0; i < 12; i++)
+                {
+                    ordersList[i] = new List<Double>();
+                }
+                foreach (Customer customer in customerList)
+                {
+                    foreach (Order order in customer.OrderHistory)
+                    {
+                        if (order.TimeFulfilled.HasValue)
+                        {
+                            DateTime timeFulfilled = order.TimeFulfilled.Value;
+                            if (timeFulfilled.Year == year)
+                            {
+                                double price = order.CalculateTotal();
+                                ordersList[timeFulfilled.Month].Add(price);
+                            }
+                        }
+                    }
+                }
 
+                double total = 0;
+                for (int i = 0; i < 12; i++)
+                {
+                    Console.Write($"{new DateTime(1, i + 1, 1).ToString("MMM")} {year}:   $");
+                    double monthTotal = 0;
+                    foreach (double price in ordersList[i])
+                    {
+                        monthTotal += price;
+                    }
+                    Console.WriteLine(monthTotal);
+                    total += monthTotal;
+                }
+                Console.WriteLine("Total:      $" + total);
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Error parsing order ID: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+            }
         }
+
+        static void ReadExistingCustomersFromCsv(string csvFilePath, List<Customer> customers)
+        {
+            Dictionary<int, Customer> customerLookup = new Dictionary<int, Customer>();
+            Dictionary<int, int> orderIdToMemberIdMap = new Dictionary<int, int>();
+            foreach (Customer customer in customers)
+            {
+                if (!customerLookup.ContainsKey(customer.MemberID))
+                {
+                    customerLookup.Add(customer.MemberID, customer);
+                }
+            }
+            Dictionary<int, Order> ordersDict = new Dictionary<int, Order>();
+            string[] lines = File.ReadAllLines(csvFilePath); //orders.csv
+            for (int i = 1; i < lines.Length; i++)
+            {
+                var columns = lines[i].Split(',');
+                int orderId = Convert.ToInt32(columns[0]);
+                int memberId = Convert.ToInt32(columns[1]);
+                orderIdToMemberIdMap[orderId] = memberId;
+
+                string option = columns[4];
+                int scoops = Convert.ToInt32(columns[5]);
+                DateTime timeReceived = DateTime.Parse(columns[2]);
+                DateTime timeFufilled = DateTime.Parse(columns[3]);
+                List<String> fList = new List<String>() { columns[8], columns[9], columns[10] };
+                List<Flavour> flavourList = new List<Flavour>();
+                if (fList[0] == fList[1] && fList[1] == fList[2])  //If all the flavours are the same
+                {
+                    Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 3);
+                    flavourList.Add(flavour);
+                }
+                else if (fList[0] == fList[1])
+                {
+                    Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 2);
+                    flavourList.Add(flavour);
+                    Flavour flavour1 = new Flavour(fList[2], IsPremium(fList[2]), 1);
+                    flavourList.Add(flavour1);
+                }
+                else if (fList[0] == fList[2])
+                {
+                    Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 2);
+                    flavourList.Add(flavour);
+                    Flavour flavour1 = new Flavour(fList[1], IsPremium(fList[1]), 1);
+                    flavourList.Add(flavour1);
+                }
+                else if (fList[1] == fList[2])
+                {
+                    Flavour flavour = new Flavour(fList[1], IsPremium(fList[1]), 2);
+                    flavourList.Add(flavour);
+                    Flavour flavour1 = new Flavour(fList[0], IsPremium(fList[0]), 1);
+                    flavourList.Add(flavour1);
+                }
+                else
+                {
+                    Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 1);
+                    flavourList.Add(flavour);
+                    Flavour flavour1 = new Flavour(fList[1], IsPremium(fList[1]), 1);
+                    flavourList.Add(flavour1);
+                    Flavour flavour2 = new Flavour(fList[2], IsPremium(fList[2]), 1);
+                    flavourList.Add(flavour2);
+                }
+                List<Topping> toppingList = new List<Topping>();
+                for (int j = 11; j <= 14; j++)
+                {
+                    if (columns[j] != "")
+                    {
+                        Topping topping = new Topping(columns[j]);
+                        toppingList.Add(topping);
+                    }
+                }
+                // 3. Handle orders and ice creams
+                if (!ordersDict.TryGetValue(orderId, out var order))
+                {
+                    order = new Order(orderId, timeReceived);
+                    order.TimeFulfilled = timeFufilled;
+                    ordersDict[orderId] = order;
+                }
+                IceCream iceCream = null;
+                if (option == "Cone")
+                {
+                    bool dipped = Convert.ToBoolean(columns[6]);
+                    iceCream = new Cone("Cone", scoops, flavourList, toppingList, dipped);
+                }
+                else if (option == "Waffle")
+                {
+                    string WaffleFlavour = columns[7];
+                    iceCream = new Waffle("Waffle", scoops, flavourList, toppingList, WaffleFlavour);
+                }
+                else
+                {
+                    iceCream = new Cup("Cup", scoops, flavourList, toppingList);
+                }
+                order.AddIceCream(iceCream);
+            }
+            foreach (var orderEntry in ordersDict)
+            {
+                int orderId = orderEntry.Key;
+                Order order = orderEntry.Value;
+
+                if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
+                    customerLookup.TryGetValue(memberId, out Customer customer))
+                {
+                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
+                    foreach (Order o in customer.OrderHistory)
+                    {
+                        customer.Rewards.Punch();
+                    }
+                }
+            }
+        }
+
+        static bool IsPremium(string type)
+        {
+            type = type.ToLower();
+            if (type == "ube" || type == "durian" || type == "sea salt")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     }
 }

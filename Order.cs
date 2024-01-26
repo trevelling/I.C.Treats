@@ -20,7 +20,7 @@ namespace IceCreamShop
         public DateTime? TimeFulfilled { get; set; }
         public List<IceCream> IceCreamList { get; set; }
 
-        public Order(){} // Default Constructor
+        public Order() { } // Default Constructor
 
         public Order(int id, DateTime timeReceived)
         {
