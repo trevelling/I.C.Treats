@@ -533,7 +533,7 @@ namespace IceCreamShop
                             // Add redemption points to the customer's PointCard
                             customer.Rewards.AddPoints(redemptionPoints);
 
-                            Console.WriteLine($"Your Points: {customer.Rewards.Points}");
+                            Console.WriteLine($"Points earned: {redemptionPoints}");
                             Console.WriteLine("");
 
                             if (customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold")
@@ -560,6 +560,7 @@ namespace IceCreamShop
                                     int redeemAmount;
                                     while (true)
                                     {
+                                        Console.WriteLine($"Accumulated Points: {customer.Rewards.Points}");
                                         Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
                                         string redeemInput = Console.ReadLine();
 
@@ -726,6 +727,7 @@ namespace IceCreamShop
                     DisplayOrder(currentOrder);
                 }
 
+                Console.WriteLine("");
                 if (orderHistory != null)
                 {
                     Console.WriteLine($"{customer.Name}'s Past Orders\r\n-------------------");
