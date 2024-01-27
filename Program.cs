@@ -27,6 +27,7 @@ namespace IceCreamShop
     class Program
     {
         private static int nextOrderId = 1;
+
         static void Main(string[] args)
         {
 
@@ -45,8 +46,8 @@ namespace IceCreamShop
                 List<Order> newOrderList = new List<Order>();
 
                 initCustomers("customers.csv", customerList);
-
                 ReadExistingCustomersFromCsv("orders.csv", customerList);
+
                 while (true)
                 {
                     try
@@ -230,15 +231,34 @@ namespace IceCreamShop
         {
             try
             {
-                Console.Write("Enter your name: ");
-                string name = Console.ReadLine();
+                Console.WriteLine("");
 
-                Console.Write("Enter your ID Number: ");
-                int id = Convert.ToInt32(Console.ReadLine());
+                // Input validation for Name (should only allow strings)
+                string name;
+                do
+                {
+                    Console.Write("Enter your name: ");
+                    name = Console.ReadLine().Trim();
+                    if (string.IsNullOrWhiteSpace(name) || name.Any(char.IsDigit))
+                        Console.WriteLine("Invalid name. Please enter a valid name.");
+                } while (string.IsNullOrWhiteSpace(name) || name.Any(char.IsDigit));
 
-                Console.Write("Enter in your Date of Birth: ");
-                DateTime dob = Convert.ToDateTime(Console.ReadLine());
+                // Input validation for ID Number (should only allow positive integers of length 6)
+                int id;
+                do
+                {
+                    Console.Write("Enter your ID Number (e.g. 123456): ");
+                } while (!int.TryParse(Console.ReadLine(), out id) || id <= 0 || id.ToString().Length != 6);
 
+                // Input validation for Date of Birth (should be in the format "dd/MM/yyyy")
+                DateTime dob;
+                do
+                {
+                    Console.Write("Enter your Date of Birth (dd/MM/yyyy): ");
+                } while (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                             DateTimeStyles.None, out dob));
+
+                // Rest of the code remains unchanged
                 Customer newCustomer = new Customer(name, id, dob);
                 PointCard pointCard = new PointCard(0, 0);
                 newCustomer.Rewards = pointCard;
@@ -249,9 +269,10 @@ namespace IceCreamShop
                 {
                     writer.WriteLine($"{name},{id},{dob.ToString("dd/MM/yyyy")}");
                 }
-                Console.WriteLine($"!NEW Customer! \n\n\t Name - {name} \n\t MemberID {id} \n\t DOB - {dob.ToString("dd/MM/yyyy")} \n\nhas been successfully registered");
-            }
 
+                Console.WriteLine(
+                    $"!NEW Customer! \n\n\t Name - {name} \n\t MemberID {id} \n\t DOB - {dob.ToString("dd/MM/yyyy")} \n\nhas been successfully registered");
+            }
             catch (IOException ex)
             {
                 Console.WriteLine($"Error writing to the file: {ex.Message}");
@@ -266,11 +287,12 @@ namespace IceCreamShop
             }
         }
 
-        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
+
+        static void CreateNewOrder(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular,
+            List<Order> newOrderList)
         {
             try
             {
-
                 DisplayAllCustomers(customers);
                 Console.WriteLine("");
 
@@ -348,18 +370,21 @@ namespace IceCreamShop
                         {
                             if (iceCream is Cup cupIceCream)
                             {
-                                sw.WriteLine($"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
+                                sw.WriteLine(
+                                    $"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
                             }
                             else if (iceCream is Cone coneIceCream)
                             {
                                 // Check if the Cone is dipped and convert boolean to string
                                 string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
 
-                                sw.WriteLine($"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
+                                sw.WriteLine(
+                                    $"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
                             }
                             else if (iceCream is Waffle waffleIceCream)
                             {
-                                sw.WriteLine($"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
+                                sw.WriteLine(
+                                    $"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
                             }
                         }
                     }
@@ -418,7 +443,8 @@ namespace IceCreamShop
             File.WriteAllLines(filePath, updatedLines);
         }
 
-        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold, Queue<Order> pointCardRegular, List<Order> newOrderList)
+        static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold,
+            Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
             {
@@ -452,7 +478,8 @@ namespace IceCreamShop
                             }
 
                             Console.WriteLine("");
-                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Console.WriteLine(
+                                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                             Console.WriteLine($"{customer.Name} - {customer.MemberID}");
 
                             if (customer.IsBirthday())
@@ -476,13 +503,15 @@ namespace IceCreamShop
                                 }
                             }
 
-                            double orderMostExpensivePrice = order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
+                            double orderMostExpensivePrice =
+                                order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
 
                             // Update the overall most expensive ice cream price
                             if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
                             {
                                 mostExpensiveIceCreamPrice = orderMostExpensivePrice;
                             }
+
                             totalBill += order.CalculateTotal();
 
                             // Checks if a birthday discount is applicable
@@ -491,7 +520,8 @@ namespace IceCreamShop
                                 // Calculated discounted bill
                                 totalBill -= mostExpensiveIceCreamPrice;
 
-                                Console.WriteLine($"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
+                                Console.WriteLine(
+                                    $"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
                             }
                             else
                             {
@@ -537,7 +567,8 @@ namespace IceCreamShop
                                         {
                                             // Call the RedeemPoints method
                                             customer.Rewards.RedeemPoints(redeemAmount * 2); // 1 point = $0.02
-                                            totalBill -= redeemAmount * 0.02; // Deduct redeemed amount from the total bill
+                                            totalBill -=
+                                                redeemAmount * 0.02; // Deduct redeemed amount from the total bill
                                             Console.WriteLine("");
                                             Console.WriteLine($"Final Bill: {totalBill:C}");
                                             break; // Break out of the loop if valid input is provided
@@ -547,8 +578,6 @@ namespace IceCreamShop
                                     }
                                 }
                             }
-
-                            Console.WriteLine("");
 
                             // Prompt user to press any key for payment and increment punch card
                             Console.WriteLine("Press [enter] to make payment...");
@@ -561,14 +590,14 @@ namespace IceCreamShop
                             order.TimeFulfilled = timeFulfilled;
                             Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
 
-
                             customer.Rewards.Punch();
                             if (customer.Rewards.PunchCard == 10)
                             {
                                 Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
                             }
                             totalBill = 0;
-                            Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                            Console.WriteLine(
+                                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
                             // Add processed order to OrderHistory
                             customer.OrderHistory.Add(order);
@@ -621,16 +650,24 @@ namespace IceCreamShop
                     List<Topping> ToppingList = iceCream.Toppings;
                     foreach (Flavour flavour in FlavourList)
                     {
+                        //test
+                        if (flavour.Type == "")
+                        {
+                            Console.WriteLine("No flavour");
+                        }
                         Console.WriteLine($"    {flavour.Quantity} scoops of {flavour.Type}");
                     }
+
                     if (ToppingList.Count > 0)
                     {
                         Console.WriteLine($"    Topped with: {String.Join(", ", ToppingList)}");
                     }
+
                     j++;
                 }
             }
         }
+
         static void DisplayAllCurrentOrders(Queue<Order> orders)
         {
             int i = 1;
@@ -642,6 +679,7 @@ namespace IceCreamShop
                 i++;
             }
         }
+
         static void DisplayOrderDetails(List<Customer> customerList)
         {
             DisplayAllCustomers(customerList);
@@ -665,10 +703,20 @@ namespace IceCreamShop
                         valid = true;
                     }
                 }
-                catch (FormatException) { Console.WriteLine("Invalid input. Please enter a valid number."); }
-                catch (OverflowException) { Console.WriteLine("Input is not a 32-bit signed integer. Please enter a 32-bit signed integer."); }
-                catch (Exception ex) { Console.WriteLine($"An unexpected error occurred: {ex.Message}"); }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid number.");
+                }
+                catch (OverflowException)
+                {
+                    Console.WriteLine("Input is not a 32-bit signed integer. Please enter a 32-bit signed integer.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                }
             }
+
             Customer customer = customerList[option - 1];
             try
             {
@@ -679,12 +727,15 @@ namespace IceCreamShop
                     Console.WriteLine("No data found. ");
                     return;
                 }
+
                 if (currentOrder != null)
                 {
                     Console.WriteLine($"{customer.Name}'s Current Order\r\n-------------------");
+                    Console.WriteLine($"Order ID: {currentOrder.Id}");
                     Console.WriteLine("Date Received: " + currentOrder.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
                     DisplayOrder(currentOrder);
                 }
+
                 if (orderHistory != null)
                 {
                     Console.WriteLine($"{customer.Name}'s Past Orders\r\n-------------------");
@@ -692,6 +743,7 @@ namespace IceCreamShop
                     foreach (Order order in orderHistory)
                     {
                         Console.WriteLine($"Order [{i}]");
+                        Console.WriteLine($"Order ID: {order.Id}");
                         Console.WriteLine("Date Received:  " + order.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
                         if (order.TimeFulfilled.HasValue)
                         {
@@ -702,6 +754,7 @@ namespace IceCreamShop
                         {
                             Console.WriteLine("Not yet fulfilled");
                         }
+
                         DisplayOrder(order);
                         i++;
                     }
@@ -713,6 +766,7 @@ namespace IceCreamShop
             }
 
         }
+
         static int IntValidation(int start, int end)
         {
             int option = 0;
@@ -748,8 +802,10 @@ namespace IceCreamShop
                     Console.WriteLine($"An unexpected error occurred: {ex.Message}");
                 }
             }
+
             return option;
         }
+
         static void ModifyOrderDetails(List<Customer> customerList)
         {
             DisplayAllCustomers(customerList);
@@ -765,7 +821,8 @@ namespace IceCreamShop
             List<IceCream> iceCreamList = currentOrder.IceCreamList;
 
             DisplayOrder(currentOrder);
-            Console.WriteLine("[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
+            Console.WriteLine(
+                "[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
             Console.Write("Enter option: ");
             option = IntValidation(1, 3);
             
@@ -819,7 +876,8 @@ namespace IceCreamShop
                     Console.WriteLine("");
 
                     if (validWaffleFlavour.ToLower() != "plain" && validWaffleFlavour.ToLower() != "red velvet" &&
-                        validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" && validWaffleFlavour.ToLower() != "redvelvet")
+                        validWaffleFlavour.ToLower() != "charcoal" && validWaffleFlavour.ToLower() != "pandan" &&
+                        validWaffleFlavour.ToLower() != "redvelvet")
                     {
                         Console.WriteLine("Invalid waffle flavour. Please enter a valid waffle flavour.");
                     }
@@ -870,7 +928,8 @@ namespace IceCreamShop
                         continue;
                     }
 
-                    Console.WriteLine($"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
+                    Console.WriteLine(
+                        $"Choose your {(premium ? "premium" : "non-premium")} flavour for scoop {scoopNumber}!");
 
                     if (premium)
                     {
@@ -885,8 +944,10 @@ namespace IceCreamShop
                     Console.WriteLine("");
 
                     // Check if the entered flavor is valid
-                    if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" || flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
-                        (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" || flavour.ToLower() == "strawberry")))
+                    if ((premium && (flavour.ToLower() == "durian" || flavour.ToLower() == "ube" ||
+                                     flavour.ToLower() == "seasalt" || flavour.ToLower() == "sea salt")) ||
+                        (!premium && (flavour.ToLower() == "vanilla" || flavour.ToLower() == "chocolate" ||
+                                      flavour.ToLower() == "strawberry")))
                     {
                         validFlavour = true;
                         Flavour iceCreamFlavour = new Flavour(flavour, premium, 1);
@@ -912,7 +973,7 @@ namespace IceCreamShop
 
                     if (topping == "n")
                     {
-                        exitToppings = true;  // Set exitToppings to true to break out of the for loop
+                        exitToppings = true; // Set exitToppings to true to break out of the for loop
                         break;
                     }
 
@@ -1031,21 +1092,21 @@ namespace IceCreamShop
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 3);
                     flavourList.Add(flavour);
                 }
-                else if (fList[0] == fList[1])
+                else if (fList[0] == fList[1] && fList[0] != "")
                 {
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 2);
                     flavourList.Add(flavour);
                     Flavour flavour1 = new Flavour(fList[2], IsPremium(fList[2]), 1);
                     flavourList.Add(flavour1);
                 }
-                else if (fList[0] == fList[2])
+                else if (fList[0] == fList[2] && fList[0] != "")
                 {
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 2);
                     flavourList.Add(flavour);
                     Flavour flavour1 = new Flavour(fList[1], IsPremium(fList[1]), 1);
                     flavourList.Add(flavour1);
                 }
-                else if (fList[1] == fList[2])
+                else if (fList[1] == fList[2] && fList[1] != "")
                 {
                     Flavour flavour = new Flavour(fList[1], IsPremium(fList[1]), 2);
                     flavourList.Add(flavour);
@@ -1054,12 +1115,14 @@ namespace IceCreamShop
                 }
                 else
                 {
-                    Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 1);
-                    flavourList.Add(flavour);
-                    Flavour flavour1 = new Flavour(fList[1], IsPremium(fList[1]), 1);
-                    flavourList.Add(flavour1);
-                    Flavour flavour2 = new Flavour(fList[2], IsPremium(fList[2]), 1);
-                    flavourList.Add(flavour2);
+                    foreach(String flvr in fList)
+                    {
+                        if (flvr != "")
+                        {
+                            Flavour flavour = new Flavour(flvr, IsPremium(flvr), 1);
+                            flavourList.Add(flavour);
+                        }
+                    }
                 }
                 List<Topping> toppingList = new List<Topping>();
                 for (int j = 11; j <= 14; j++)
