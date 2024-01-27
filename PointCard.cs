@@ -4,6 +4,7 @@
 // Partner Name : Brayden Saga
 //==========================================================
 
+using IceCreamShop;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -86,7 +87,6 @@ namespace S10258591_PRG2Assignment
 
             if (PunchCard == 10)
             {
-                Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
                 PunchCard = 0; // Reset the punch card after earning a free ice cream
             }
         }

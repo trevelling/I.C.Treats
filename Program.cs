@@ -44,7 +44,6 @@ namespace IceCreamShop
                 // LIST OF NEW ORDERS CREATED
                 List<Order> newOrderList = new List<Order>();
 
-                Console.WriteLine("Run Customer init");
                 initCustomers("customers.csv", customerList);
 
                 ReadExistingCustomersFromCsv("orders.csv", customerList);
@@ -564,6 +563,10 @@ namespace IceCreamShop
 
 
                             customer.Rewards.Punch();
+                            if (customer.Rewards.PunchCard == 10)
+                            {
+                                Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
+                            }
                             totalBill = 0;
                             Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
@@ -754,11 +757,18 @@ namespace IceCreamShop
             int option = IntValidation(1, customerList.Count);
             Customer customer = customerList[option - 1];
             Order currentOrder = customer.CurrentOrder;
+            if (customer.CurrentOrder == null)
+            {
+                Console.WriteLine("Customer has no current order.");
+                return;
+            }
+            List<IceCream> iceCreamList = currentOrder.IceCreamList;
+
             DisplayOrder(currentOrder);
             Console.WriteLine("[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
             Console.Write("Enter option: ");
             option = IntValidation(1, 3);
-            List<IceCream> iceCreamList = currentOrder.IceCreamList;
+            
             if (option == 1)
             {
                 Console.Write("Choose Ice Cream to modify: ");
@@ -937,7 +947,6 @@ namespace IceCreamShop
 
         static void DisplayCharges(int year, List<Customer> customerList)
         {
-            string filePath = "orders.csv";
             try
             {
                 //Month to Price
@@ -948,15 +957,17 @@ namespace IceCreamShop
                 }
                 foreach (Customer customer in customerList)
                 {
+                    
                     foreach (Order order in customer.OrderHistory)
                     {
                         if (order.TimeFulfilled.HasValue)
                         {
+
                             DateTime timeFulfilled = order.TimeFulfilled.Value;
                             if (timeFulfilled.Year == year)
                             {
                                 double price = order.CalculateTotal();
-                                ordersList[timeFulfilled.Month - 1].Add(price); //decrease by 1, because list is 0 indexed
+                                ordersList[timeFulfilled.Month-1].Add(price);
                             }
                         }
                     }
@@ -975,10 +986,6 @@ namespace IceCreamShop
                     total += monthTotal;
                 }
                 Console.WriteLine("Total:      $" + total);
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
             }
             catch (FormatException ex)
             {
@@ -1006,6 +1013,9 @@ namespace IceCreamShop
             for (int i = 1; i < lines.Length; i++)
             {
                 var columns = lines[i].Split(',');
+                if (columns[3] == "") {
+                    continue;
+                }
                 int orderId = Convert.ToInt32(columns[0]);
                 int memberId = Convert.ToInt32(columns[1]);
                 orderIdToMemberIdMap[orderId] = memberId;
@@ -1089,10 +1099,17 @@ namespace IceCreamShop
                 int orderId = orderEntry.Key;
                 Order order = orderEntry.Value;
 
+                if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
+                    customerLookup.TryGetValue(memberId, out Customer customer))
+                {
+                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
+                    foreach (Order o in customer.OrderHistory)
+                    {
+                        customer.Rewards.Punch();
+                    }
+                }
             }
-            // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
-
         static bool IsPremium(string type)
         {
             type = type.ToLower();
