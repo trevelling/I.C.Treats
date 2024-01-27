@@ -579,6 +579,10 @@ namespace IceCreamShop
                             Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
 
                             customer.Rewards.Punch();
+                            if (customer.Rewards.PunchCard == 10)
+                            {
+                                Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
+                            }
                             totalBill = 0;
                             Console.WriteLine(
                                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
@@ -634,6 +638,11 @@ namespace IceCreamShop
                     List<Topping> ToppingList = iceCream.Toppings;
                     foreach (Flavour flavour in FlavourList)
                     {
+                        //test
+                        if (flavour.Type == "")
+                        {
+                            Console.WriteLine("No flavour");
+                        }
                         Console.WriteLine($"    {flavour.Quantity} scoops of {flavour.Type}");
                     }
 
@@ -710,6 +719,7 @@ namespace IceCreamShop
                 if (currentOrder != null)
                 {
                     Console.WriteLine($"{customer.Name}'s Current Order\r\n-------------------");
+                    Console.WriteLine($"Order ID: {currentOrder.Id}");
                     Console.WriteLine("Date Received: " + currentOrder.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
                     DisplayOrder(currentOrder);
                 }
@@ -722,6 +732,7 @@ namespace IceCreamShop
                     foreach (Order order in orderHistory)
                     {
                         Console.WriteLine($"Order [{i}]");
+                        Console.WriteLine($"Order ID: {order.Id}");
                         Console.WriteLine("Date Received:  " + order.TimeReceived.ToString("dd MMM yyyy, HH:mm"));
                         if (order.TimeFulfilled.HasValue)
                         {
@@ -791,12 +802,19 @@ namespace IceCreamShop
             int option = IntValidation(1, customerList.Count);
             Customer customer = customerList[option - 1];
             Order currentOrder = customer.CurrentOrder;
+            if (customer.CurrentOrder == null)
+            {
+                Console.WriteLine("Customer has no current order.");
+                return;
+            }
+            List<IceCream> iceCreamList = currentOrder.IceCreamList;
+
             DisplayOrder(currentOrder);
             Console.WriteLine(
                 "[1] Choose an existing ice cream to modify\r\n[2] Add a new ice cream to the order\r\n[3] Choose an existing ice cream to delete from order\r\n[0] Cancel");
             Console.Write("Enter option: ");
             option = IntValidation(1, 3);
-            List<IceCream> iceCreamList = currentOrder.IceCreamList;
+            
             if (option == 1)
             {
                 Console.Write("Choose Ice Cream to modify: ");
@@ -979,7 +997,6 @@ namespace IceCreamShop
 
         static void DisplayCharges(int year, List<Customer> customerList)
         {
-            string filePath = "orders.csv";
             try
             {
                 //Month to Price
@@ -988,18 +1005,19 @@ namespace IceCreamShop
                 {
                     ordersList[i] = new List<Double>();
                 }
-
                 foreach (Customer customer in customerList)
                 {
+                    
                     foreach (Order order in customer.OrderHistory)
                     {
                         if (order.TimeFulfilled.HasValue)
                         {
+
                             DateTime timeFulfilled = order.TimeFulfilled.Value;
                             if (timeFulfilled.Year == year)
                             {
                                 double price = order.CalculateTotal();
-                                ordersList[timeFulfilled.Month].Add(price);
+                                ordersList[timeFulfilled.Month-1].Add(price);
                             }
                         }
                     }
@@ -1014,16 +1032,10 @@ namespace IceCreamShop
                     {
                         monthTotal += price;
                     }
-
                     Console.WriteLine(monthTotal);
                     total += monthTotal;
                 }
-
                 Console.WriteLine("Total:      $" + total);
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
             }
             catch (FormatException ex)
             {
@@ -1046,12 +1058,14 @@ namespace IceCreamShop
                     customerLookup.Add(customer.MemberID, customer);
                 }
             }
-
             Dictionary<int, Order> ordersDict = new Dictionary<int, Order>();
             string[] lines = File.ReadAllLines(csvFilePath); //orders.csv
             for (int i = 1; i < lines.Length; i++)
             {
                 var columns = lines[i].Split(',');
+                if (columns[3] == "") {
+                    continue;
+                }
                 int orderId = Convert.ToInt32(columns[0]);
                 int memberId = Convert.ToInt32(columns[1]);
                 orderIdToMemberIdMap[orderId] = memberId;
@@ -1062,26 +1076,26 @@ namespace IceCreamShop
                 DateTime timeFufilled = DateTime.Parse(columns[3]);
                 List<String> fList = new List<String>() { columns[8], columns[9], columns[10] };
                 List<Flavour> flavourList = new List<Flavour>();
-                if (fList[0] == fList[1] && fList[1] == fList[2]) //If all the flavours are the same
+                if (fList[0] == fList[1] && fList[1] == fList[2])  //If all the flavours are the same
                 {
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 3);
                     flavourList.Add(flavour);
                 }
-                else if (fList[0] == fList[1])
+                else if (fList[0] == fList[1] && fList[0] != "")
                 {
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 2);
                     flavourList.Add(flavour);
                     Flavour flavour1 = new Flavour(fList[2], IsPremium(fList[2]), 1);
                     flavourList.Add(flavour1);
                 }
-                else if (fList[0] == fList[2])
+                else if (fList[0] == fList[2] && fList[0] != "")
                 {
                     Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 2);
                     flavourList.Add(flavour);
                     Flavour flavour1 = new Flavour(fList[1], IsPremium(fList[1]), 1);
                     flavourList.Add(flavour1);
                 }
-                else if (fList[1] == fList[2])
+                else if (fList[1] == fList[2] && fList[1] != "")
                 {
                     Flavour flavour = new Flavour(fList[1], IsPremium(fList[1]), 2);
                     flavourList.Add(flavour);
@@ -1090,14 +1104,15 @@ namespace IceCreamShop
                 }
                 else
                 {
-                    Flavour flavour = new Flavour(fList[0], IsPremium(fList[0]), 1);
-                    flavourList.Add(flavour);
-                    Flavour flavour1 = new Flavour(fList[1], IsPremium(fList[1]), 1);
-                    flavourList.Add(flavour1);
-                    Flavour flavour2 = new Flavour(fList[2], IsPremium(fList[2]), 1);
-                    flavourList.Add(flavour2);
+                    foreach(String flvr in fList)
+                    {
+                        if (flvr != "")
+                        {
+                            Flavour flavour = new Flavour(flvr, IsPremium(flvr), 1);
+                            flavourList.Add(flavour);
+                        }
+                    }
                 }
-
                 List<Topping> toppingList = new List<Topping>();
                 for (int j = 11; j <= 14; j++)
                 {
@@ -1107,7 +1122,6 @@ namespace IceCreamShop
                         toppingList.Add(topping);
                     }
                 }
-
                 // 3. Handle orders and ice creams
                 if (!ordersDict.TryGetValue(orderId, out var order))
                 {
@@ -1115,7 +1129,6 @@ namespace IceCreamShop
                     order.TimeFulfilled = timeFufilled;
                     ordersDict[orderId] = order;
                 }
-
                 IceCream iceCream = null;
                 if (option == "Cone")
                 {
@@ -1131,87 +1144,35 @@ namespace IceCreamShop
                 {
                     iceCream = new Cup("Cup", scoops, flavourList, toppingList);
                 }
-
                 order.AddIceCream(iceCream);
             }
-
             foreach (var orderEntry in ordersDict)
             {
                 int orderId = orderEntry.Key;
                 Order order = orderEntry.Value;
 
+                if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
+                    customerLookup.TryGetValue(memberId, out Customer customer))
+                {
+                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
+                    foreach (Order o in customer.OrderHistory)
+                    {
+                        customer.Rewards.Punch();
+                    }
+                }
             }
-
-            static void DisplayCharges(int year, List<Customer> customerList)
+        }
+        static bool IsPremium(string type)
+        {
+            type = type.ToLower();
+            if (type == "ube" || type == "durian" || type == "sea salt")
             {
-                string filePath = "orders.csv";
-                try
-                {
-                    //Month to Price
-                    Dictionary<int, List<Double>> ordersList = new Dictionary<int, List<Double>>();
-                    for (int i = 0; i < 12; i++)
-                    {
-                        ordersList[i] = new List<Double>();
-                    }
-                    foreach (Customer customer in customerList)
-                    {
-                        foreach (Order order in customer.OrderHistory)
-                        {
-                            if (order.TimeFulfilled.HasValue)
-                            {
-                                DateTime timeFulfilled = order.TimeFulfilled.Value;
-                                if (timeFulfilled.Year == year)
-                                {
-                                    double price = order.CalculateTotal();
-                                    ordersList[timeFulfilled.Month - 1].Add(price);
-                                }
-                            }
-                        }
-                    }
-
-                    double total = 0;
-                    for (int i = 0; i < 12; i++)
-                    {
-                        Console.Write($"{new DateTime(1, i + 1, 1).ToString("MMM")} {year}:   $");
-                        double monthTotal = 0;
-                        foreach (double price in ordersList[i])
-                        {
-                            monthTotal += price;
-                        }
-                        Console.WriteLine(monthTotal);
-                        total += monthTotal;
-                    }
-                    Console.WriteLine("Total:      $" + total);
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine($"Error reading from {filePath}: {ex.Message}");
-                }
-                catch (FormatException ex)
-                {
-                    Console.WriteLine($"Error parsing order ID: {ex.Message}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An unexpected error occurred: {ex.Message}");
-                }
+                return true;
             }
-
-
-            static bool IsPremium(string type)
+            else
             {
-                type = type.ToLower();
-                if (type == "ube" || type == "durian" || type == "sea salt")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return false;
             }
-
-            // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
     }
 }
