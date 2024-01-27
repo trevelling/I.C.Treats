@@ -4,14 +4,7 @@
 // Partner Name : Brayden Saga
 //==========================================================
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+
 using S10258591_PRG2Assignment;
 
 namespace IceCreamShop
