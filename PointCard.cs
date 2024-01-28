@@ -58,27 +58,33 @@ namespace S10258591_PRG2Assignment
             }
         }// Tier of pointCard will never drop
 
-        public void RedeemPoints(int bill)
+        public void RedeemPoints(int redeemingAmount)
         {
-            double redemptionRate = 0.02; // 1 point = $0.02
             int maxRedeemablePoints;
 
-            if (Tier == "Gold")
+            if (Tier == "Gold" || Tier == "Silver")
             {
-                maxRedeemablePoints = Math.Min(Points, 100);
-            }
-            else if (Tier == "Silver")
-            {
-                maxRedeemablePoints = Math.Min(Points, 50);
+                maxRedeemablePoints = Points; // Allow redeeming any amount for Gold and Silver tiers
             }
             else
             {
                 maxRedeemablePoints = 0; // No redemption for other tiers
             }
 
-            int redeemedAmount = Math.Min(maxRedeemablePoints, (int)(bill / redemptionRate));
-            Points -= redeemedAmount;
-            Console.WriteLine($"Redeemed {redeemedAmount} points. Remaining Points: {Points}");
+            while (redeemingAmount > maxRedeemablePoints || redeemingAmount < 0)
+            {
+                Console.WriteLine("Invalid amount. Please enter a valid amount of points to redeem.");
+                Console.Write($"Enter the amount of points to redeem (0 to {maxRedeemablePoints}): ");
+
+                // Read user input and try to parse it to an integer
+                if (!int.TryParse(Console.ReadLine(), out redeemingAmount))
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid number.");
+                }
+            }
+
+            Points -= redeemingAmount;
+            Console.WriteLine($"Remaining Points: {Points}");
         }
 
         public void Punch()

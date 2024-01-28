@@ -467,7 +467,7 @@ namespace IceCreamShop
                             Console.WriteLine("");
                             Console.WriteLine(
                                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                            Console.WriteLine($"{customer.Name} - {customer.MemberID}");
+                            Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points}");
 
                             if (customer.IsBirthday())
                             {
@@ -521,13 +521,14 @@ namespace IceCreamShop
                             customer.Rewards.AddPoints(redemptionPoints);
 
                             Console.WriteLine($"Points earned: {redemptionPoints}");
+                            Console.WriteLine($"Final Points: {customer.Rewards.Points}");
                             Console.WriteLine("");
 
+                            // Check the membership status after adding points
                             if (customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold")
                             {
                                 // Prompt the user for the option to redeem points
                                 string option;
-                                Console.WriteLine($"CONGRATS! You are now a {customer.Rewards.Tier} member.");
                                 while (true)
                                 {
                                     Console.Write("Do you want to redeem your points for further discount [Y/N]: ");
@@ -535,35 +536,35 @@ namespace IceCreamShop
 
                                     if (option == "y" || option == "n")
                                     {
+                                        if (option == "y")
+                                        {
+                                            // Prompt the user for the amount they want to redeem
+                                            int redeemAmount;
+                                            while (true)
+                                            {
+                                                Console.WriteLine($"Total points redeemable after new order: {customer.Rewards.Points}");
+                                                Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
+                                                string redeemInput = Console.ReadLine();
+
+                                                if (int.TryParse(redeemInput, out redeemAmount))
+                                                {
+                                                    // Call the RedeemPoints method with the original redeemAmount
+                                                    customer.Rewards.RedeemPoints(redeemAmount); // 1 point = $0.02
+                                                    totalBill -=
+                                                        redeemAmount * 0.02; // Deduct redeemed amount from the total bill
+                                                    Console.WriteLine("");
+                                                    Console.WriteLine($"Final Bill: {totalBill:C}");
+                                                    break; // Break out of the loop if valid input is provided
+                                                }
+
+                                                Console.WriteLine("Invalid input. Please enter a valid number.");
+                                            }
+                                        }
+
                                         break; // Break out of the loop if valid input is provided
                                     }
 
                                     Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
-                                }
-
-                                if (option == "y")
-                                {
-                                    // Prompt the user for the amount they want to redeem
-                                    int redeemAmount;
-                                    while (true)
-                                    {
-                                        Console.WriteLine($"Accumulated Points: {customer.Rewards.Points}");
-                                        Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
-                                        string redeemInput = Console.ReadLine();
-
-                                        if (int.TryParse(redeemInput, out redeemAmount))
-                                        {
-                                            // Call the RedeemPoints method
-                                            customer.Rewards.RedeemPoints(redeemAmount * 2); // 1 point = $0.02
-                                            totalBill -=
-                                                redeemAmount * 0.02; // Deduct redeemed amount from the total bill
-                                            Console.WriteLine("");
-                                            Console.WriteLine($"Final Bill: {totalBill:C}");
-                                            break; // Break out of the loop if valid input is provided
-                                        }
-
-                                        Console.WriteLine("Invalid input. Please enter a valid number.");
-                                    }
                                 }
                             }
 
@@ -643,7 +644,7 @@ namespace IceCreamShop
                         {
                             Console.WriteLine("No flavour");
                         }
-                        Console.WriteLine($"    {flavour.Quantity} scoops of {flavour.Type}");
+                        Console.WriteLine($"    {flavour.Quantity} scoop(s) of {flavour.Type}m");
                     }
 
                     if (ToppingList.Count > 0)
@@ -1154,7 +1155,10 @@ namespace IceCreamShop
                 if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
                     customerLookup.TryGetValue(memberId, out Customer customer))
                 {
-                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
+                    customer.OrderHistory.Add(order);
+                    int redemptionPoints = (int)Math.Floor(order.CalculateTotal() * 0.72);
+                    // Add redemption points to the customer's PointCard
+                    customer.Rewards.AddPoints(redemptionPoints);
                     foreach (Order o in customer.OrderHistory)
                     {
                         customer.Rewards.Punch();
