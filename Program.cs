@@ -1154,7 +1154,10 @@ namespace IceCreamShop
                 if (orderIdToMemberIdMap.TryGetValue(orderId, out int memberId) &&
                     customerLookup.TryGetValue(memberId, out Customer customer))
                 {
-                    customer.OrderHistory.Add(order); // assuming OrderHistory is a List<Order>
+                    customer.OrderHistory.Add(order);
+                    int redemptionPoints = (int)Math.Floor(order.CalculateTotal() * 0.72);
+                    // Add redemption points to the customer's PointCard
+                    customer.Rewards.AddPoints(redemptionPoints);
                     foreach (Order o in customer.OrderHistory)
                     {
                         customer.Rewards.Punch();
