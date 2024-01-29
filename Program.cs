@@ -166,6 +166,7 @@ namespace IceCreamShop
                         int memberID = Convert.ToInt32(fields[1].Trim());
                         DateTime dob = Convert.ToDateTime(fields[2].Trim());
 
+
                         // Create a new Customer object and add it to the list
                         Customer customer = new Customer(name, memberID, dob);
                         customers.Add(customer);
