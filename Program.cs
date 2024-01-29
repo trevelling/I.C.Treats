@@ -842,6 +842,10 @@ namespace IceCreamShop
                 option = IntValidation(1, iceCreamList.Count);
                 currentOrder.DeleteIceCream(option - 1);
             }
+            else if (option == 0)
+            {
+                return;
+            }
         }
 
         static IceCream MakeIceCream()
