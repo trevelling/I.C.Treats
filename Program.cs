@@ -165,7 +165,9 @@ namespace IceCreamShop
                         string name = fields[0].Trim();
                         int memberID = Convert.ToInt32(fields[1].Trim());
                         DateTime dob = Convert.ToDateTime(fields[2].Trim());
-
+                        string membershipStatus = fields[3].Trim();
+                        int membershipPoints = Convert.ToInt32(fields[4].Trim());
+                        int punchCard = Convert.ToInt32(fields[5].Trim());
 
                         // Create a new Customer object and add it to the list
                         Customer customer = new Customer(name, memberID, dob);
