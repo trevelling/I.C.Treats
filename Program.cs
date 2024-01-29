@@ -177,6 +177,7 @@ namespace IceCreamShop
                         // Create a new Customer object and add it to the list
                         Customer customer = new Customer(name, memberID, dob);
                         customer.Rewards.AddPoints(membershipPoints);
+                        
                         for (int j = 0; j < punchCard; j++)
                         {
                             customer.Rewards.Punch();
@@ -202,8 +203,8 @@ namespace IceCreamShop
         }
 
 
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        // (Tevel's Methods)
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Tevel's Methods)
 
         static void DisplayAllCustomers(List<Customer> customers)
         {
@@ -495,7 +496,7 @@ namespace IceCreamShop
                         Console.WriteLine("");
                         Console.WriteLine(
                             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points}");
+                        Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points} | test: {customer.Rewards.PunchCard}");
 
                         if (customer.IsBirthday())
                         {
@@ -552,8 +553,17 @@ namespace IceCreamShop
                         Console.WriteLine($"Final Points: {customer.Rewards.Points}");
                         Console.WriteLine("");
 
+                        if (customer.Rewards.PunchCard >= 10)
+                        {
+                            Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
+                            double firstIceCreamPrice = order.IceCreamList[0].CalculatePrice();
+                            totalBill -= firstIceCreamPrice;
+                            Console.WriteLine($"Final Bill: ${totalBill} ");
+                            customer.Rewards.PunchCard = 0;
+                        }
+
                         // Check the membership status after adding points
-                        if (customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold")
+                        if ((customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold") && totalBill > 0)
                         {
                             // Prompt the user for the option to redeem points
                             string option;
@@ -607,15 +617,12 @@ namespace IceCreamShop
                         DateTime timeFulfilled = DateTime.Now;
                         order.TimeFulfilled = timeFulfilled;
                         Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
-
-                        customer.Rewards.Punch();
-                        if (customer.Rewards.PunchCard == 10)
-                        {
-                            Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
-                        }
+                        
                         totalBill = 0;
                         Console.WriteLine(
                             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                        customer.Rewards.Punch();
 
                         // Add processed order to OrderHistory
                         customer.OrderHistory.Add(order);
@@ -654,8 +661,8 @@ namespace IceCreamShop
         }
 
 
-        // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        // (Brayden's Methods)
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// (Brayden's Methods)
         static void DisplayOrder(Order order)
         {
             if (order != null)

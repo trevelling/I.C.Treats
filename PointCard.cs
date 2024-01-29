@@ -90,11 +90,6 @@ namespace S10258591_PRG2Assignment
         public void Punch()
         {
             PunchCard++;
-
-            if (PunchCard == 10)
-            {
-                PunchCard = 0; // Reset the punch card after earning a free ice cream
-            }
         }
 
         public override string ToString()
