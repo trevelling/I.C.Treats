@@ -595,7 +595,8 @@ namespace IceCreamShop
                         Console.WriteLine("Press [enter] to make payment...");
                         Console.ReadKey();
                         Console.WriteLine("Payment has successfully been made");
-                        // Increment the punch card for every ice cream in the order
+
+                        customer.CurrentOrder = null;
 
                         // Set the time fulfilled for the entire order
                         DateTime timeFulfilled = DateTime.Now;
