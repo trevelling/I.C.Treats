@@ -236,7 +236,9 @@ namespace IceCreamShop
                     Console.Write("Enter your name: ");
                     name = Console.ReadLine().Trim();
                     if (string.IsNullOrWhiteSpace(name) || name.Any(char.IsDigit))
+                    {
                         Console.WriteLine("Invalid name. Please enter a valid name.");
+                    }
                 } while (string.IsNullOrWhiteSpace(name) || name.Any(char.IsDigit));
 
                 // Input validation for ID Number (should only allow positive integers of length 6)
@@ -244,15 +246,24 @@ namespace IceCreamShop
                 do
                 {
                     Console.Write("Enter your ID Number (e.g. 123456): ");
-                } while (!int.TryParse(Console.ReadLine(), out id) || id <= 0 || id.ToString().Length != 6);
+                    if (!int.TryParse(Console.ReadLine(), out id) || id <= 0 || id.ToString().Length != 6)
+                    {
+                        Console.WriteLine("Invalid Member ID format. Please enter a positive integer with 6 digits.");
+                    }
+                } while (id <= 0 || id.ToString().Length != 6);
 
                 // Input validation for Date of Birth (should be in the format "dd/MM/yyyy")
                 DateTime dob;
                 do
                 {
                     Console.Write("Enter your Date of Birth (dd/MM/yyyy): ");
+                    if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                            DateTimeStyles.None, out dob))
+                    {
+                        Console.WriteLine("Invalid Date of Birth format. Please enter a valid date in the format dd/MM/yyyy.");
+                    }
                 } while (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture,
-                             DateTimeStyles.None, out dob));
+                    DateTimeStyles.None, out dob));
 
                 // Rest of the code remains unchanged
                 Customer newCustomer = new Customer(name, id, dob);
@@ -263,7 +274,7 @@ namespace IceCreamShop
                 string filePath = "customers.csv";
                 using (StreamWriter writer = new StreamWriter(filePath, true))
                 {
-                    writer.WriteLine($"{name},{id},{dob.ToString("dd/MM/yyyy")}");
+                    writer.WriteLine($"{name},{id},{dob.ToString("dd/MM/yyyy")},{"Ordinary"},{0},{0}");
                 }
 
                 Console.WriteLine(
@@ -340,7 +351,6 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
-
 
         static void UpdateOptionsCSV(Order orders)
         {
@@ -440,10 +450,16 @@ namespace IceCreamShop
         }
 
         static void ProcessOrderAndCheckout(List<Customer> customers, Queue<Order> pointCardGold,
-            Queue<Order> pointCardRegular, List<Order> newOrderList)
+    Queue<Order> pointCardRegular, List<Order> newOrderList)
         {
             try
             {
+                if (newOrderList.Count == 0)
+                {
+                    Console.WriteLine("No orders to process.");
+                    return; // Exit the method if there are no orders to process
+                }
+
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
                 bool birthday = false;
@@ -457,158 +473,151 @@ namespace IceCreamShop
                     // Checks if the customer's current order id == matches the order id in newOrderList
                     if (customer.CurrentOrder != null && customer.CurrentOrder.Id == order.Id)
                     {
-                        if (newOrderList.Count > 0)
+                        ordersToProcess = true;
+
+                        // Process orders from the gold members order queue
+                        while (pointCardGold.Count > 0)
                         {
-                            ordersToProcess = true;
+                            pointCardGold.Dequeue();
+                        }
 
-                            // Process orders from the gold members order queue
-                            while (pointCardGold.Count > 0)
+                        // Process orders from the regular members order queue
+                        while (pointCardRegular.Count > 0)
+                        {
+                            pointCardRegular.Dequeue();
+                        }
+
+                        Console.WriteLine("");
+                        Console.WriteLine(
+                            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points}");
+
+                        if (customer.IsBirthday())
+                        {
+                            birthday = true;
+                        }
+
+                        Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
+
+                        // Display all ice creams in all processed orders
+                        Console.WriteLine(order);
+                        Console.WriteLine("");
+
+                        Console.WriteLine("Your Order:");
+                        foreach (var iceCream in order.IceCreamList)
+                        {
+                            Console.WriteLine(iceCream);
+                            if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
                             {
-                                pointCardGold.Dequeue();
+                                mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
                             }
+                        }
 
-                            // Process orders from the regular members order queue
-                            while (pointCardRegular.Count > 0)
-                            {
-                                pointCardRegular.Dequeue();
-                            }
+                        double orderMostExpensivePrice =
+                            order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
 
-                            Console.WriteLine("");
+                        // Update the overall most expensive ice cream price
+                        if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
+                        {
+                            mostExpensiveIceCreamPrice = orderMostExpensivePrice;
+                        }
+
+                        totalBill += order.CalculateTotal();
+
+                        // Checks if a birthday discount is applicable
+                        if (mostExpensiveIceCreamPrice > 0 && birthday)
+                        {
+                            // Calculated discounted bill
+                            totalBill -= mostExpensiveIceCreamPrice;
+
                             Console.WriteLine(
-                                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                            Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points}");
-
-                            if (customer.IsBirthday())
-                            {
-                                birthday = true;
-                            }
-
-                            Console.WriteLine($"Membership Status: {customer.Rewards.Tier}");
-
-                            // Display all ice creams in all processed orders
-                            Console.WriteLine(order);
-                            Console.WriteLine("");
-
-                            Console.WriteLine("Your Order:");
-                            foreach (var iceCream in order.IceCreamList)
-                            {
-                                Console.WriteLine(iceCream);
-                                if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
-                                {
-                                    mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
-                                }
-                            }
-
-                            double orderMostExpensivePrice =
-                                order.IceCreamList.Max(iceCream => iceCream.CalculatePrice());
-
-                            // Update the overall most expensive ice cream price
-                            if (orderMostExpensivePrice > mostExpensiveIceCreamPrice)
-                            {
-                                mostExpensiveIceCreamPrice = orderMostExpensivePrice;
-                            }
-
-                            totalBill += order.CalculateTotal();
-
-                            // Checks if a birthday discount is applicable
-                            if (mostExpensiveIceCreamPrice > 0 && birthday)
-                            {
-                                // Calculated discounted bill
-                                totalBill -= mostExpensiveIceCreamPrice;
-
-                                Console.WriteLine(
-                                    $"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
-                            }
-
-                            int redemptionPoints = (int)Math.Floor(totalBill * 0.72);
-
-                            // Add redemption points to the customer's PointCard
-                            customer.Rewards.AddPoints(redemptionPoints);
-
-                            Console.WriteLine($"Points earned: {redemptionPoints}");
-                            Console.WriteLine($"Final Points: {customer.Rewards.Points}");
-                            Console.WriteLine("");
-
-                            // Check the membership status after adding points
-                            if (customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold")
-                            {
-                                // Prompt the user for the option to redeem points
-                                string option;
-                                while (true)
-                                {
-                                    Console.Write("Do you want to redeem your points for further discount [Y/N]: ");
-                                    option = Console.ReadLine().ToLower();
-
-                                    if (option == "y" || option == "n")
-                                    {
-                                        if (option == "y")
-                                        {
-                                            // Prompt the user for the amount they want to redeem
-                                            int redeemAmount;
-                                            while (true)
-                                            {
-                                                Console.WriteLine($"Total points redeemable after new order: {customer.Rewards.Points}");
-                                                Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
-                                                string redeemInput = Console.ReadLine();
-
-                                                if (int.TryParse(redeemInput, out redeemAmount))
-                                                {
-                                                    // Call the RedeemPoints method with the original redeemAmount
-                                                    customer.Rewards.RedeemPoints(redeemAmount); // 1 point = $0.02
-                                                    totalBill -=
-                                                        redeemAmount * 0.02; // Deduct redeemed amount from the total bill
-                                                    Console.WriteLine("");
-                                                    Console.WriteLine($"Final Bill: {totalBill:C}");
-                                                    break; // Break out of the loop if valid input is provided
-                                                }
-
-                                                Console.WriteLine("Invalid input. Please enter a valid number.");
-                                            }
-                                        }
-
-                                        break; // Break out of the loop if valid input is provided
-                                    }
-
-                                    Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
-                                }
-                            }
-
-                            // Prompt user to press any key for payment and increment punch card
-                            Console.WriteLine("Press [enter] to make payment...");
-                            Console.ReadKey();
-                            Console.WriteLine("Payment has successfully been made");
-                            // Increment the punch card for every ice cream in the order
-
-                            // Set the time fulfilled for the entire order
-                            DateTime timeFulfilled = DateTime.Now;
-                            order.TimeFulfilled = timeFulfilled;
-                            Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
-
-                            customer.Rewards.Punch();
-                            if (customer.Rewards.PunchCard == 10)
-                            {
-                                Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
-                            }
-                            totalBill = 0;
-                            Console.WriteLine(
-                                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-
-                            // Add processed order to OrderHistory
-                            customer.OrderHistory.Add(order);
-
-                            EditLineInFile("orders.csv", order.Id, timeFulfilled);
-
-                            // Add the order to the list of orders to remove
-                            ordersToRemove.Add(order);
+                                $"ITS YOUR BIRTHDAY!!! - Total Bill Amount for all orders after Birthday discount: {totalBill:C}");
                         }
                         else
                         {
-                            Console.WriteLine("No orders to process.");
+                            Console.WriteLine($"Total Bill Amount for all orders: {totalBill:C}");
                         }
+
+                        int redemptionPoints = (int)Math.Floor(totalBill * 0.72);
+
+                        // Add redemption points to the customer's PointCard
+                        customer.Rewards.AddPoints(redemptionPoints);
+
+                        Console.WriteLine($"Points earned: {redemptionPoints}");
+                        Console.WriteLine($"Final Points: {customer.Rewards.Points}");
+                        Console.WriteLine("");
+
+                        // Check the membership status after adding points
+                        if (customer.Rewards.Tier == "Silver" || customer.Rewards.Tier == "Gold")
+                        {
+                            // Prompt the user for the option to redeem points
+                            string option;
+                            while (true)
+                            {
+                                Console.Write("Do you want to redeem your points for further discount [Y/N]: ");
+                                option = Console.ReadLine().ToLower();
+
+                                if (option == "y" || option == "n")
+                                {
+                                    if (option == "y")
+                                    {
+                                        // Prompt the user for the amount they want to redeem
+                                        int redeemAmount;
+                                        while (true)
+                                        {
+                                            Console.WriteLine($"Total points redeemable after new order: {customer.Rewards.Points}");
+                                            Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
+                                            string redeemInput = Console.ReadLine();
+
+                                            if (int.TryParse(redeemInput, out redeemAmount))
+                                            {
+                                                // Call the RedeemPoints method with the original redeemAmount
+                                                customer.Rewards.RedeemPoints(redeemAmount); // 1 point = $0.02
+                                                totalBill -=
+                                                    redeemAmount * 0.02; // Deduct redeemed amount from the total bill
+                                                Console.WriteLine("");
+                                                Console.WriteLine($"Final Bill: {totalBill:C}");
+                                                break; // Break out of the loop if valid input is provided
+                                            }
+
+                                            Console.WriteLine("Invalid input. Please enter a valid number.");
+                                        }
+                                    }
+
+                                    break; // Break out of the loop if valid input is provided
+                                }
+
+                                Console.WriteLine("Invalid input. Please enter 'Y' or 'N'.");
+                            }
+                        }
+
+                        // Prompt user to press any key for payment and increment punch card
+                        Console.WriteLine("Press [enter] to make payment...");
+                        Console.ReadKey();
+                        Console.WriteLine("Payment has successfully been made");
+                        // Increment the punch card for every ice cream in the order
+
+                        // Set the time fulfilled for the entire order
+                        DateTime timeFulfilled = DateTime.Now;
+                        order.TimeFulfilled = timeFulfilled;
+                        Console.WriteLine($"Time Fulfilled: {timeFulfilled.ToString("hh:mm:ss tt")}");
+
+                        customer.Rewards.Punch();
+                        if (customer.Rewards.PunchCard == 10)
+                        {
+                            Console.WriteLine("Congratulations! You've earned a free ice cream with your punch card! Redeeming...");
+                        }
+                        totalBill = 0;
+                        Console.WriteLine(
+                            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                        // Add processed order to OrderHistory
+                        customer.OrderHistory.Add(order);
+
+                        EditLineInFile("orders.csv", order.Id, timeFulfilled);
+
+                        // Add the order to the list of orders to remove
+                        ordersToRemove.Add(order);
                     }
 
                 }
@@ -617,6 +626,11 @@ namespace IceCreamShop
                 foreach (var orderToRemove in ordersToRemove)
                 {
                     newOrderList.Remove(orderToRemove);
+                }
+
+                if (!ordersToProcess)
+                {
+                    Console.WriteLine("No orders to process.");
                 }
             }
             catch (FormatException ex)
@@ -632,6 +646,7 @@ namespace IceCreamShop
                 Console.WriteLine($"An unexpected error occurred: {ex.Message}");
             }
         }
+
 
         // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         // (Brayden's Methods)
