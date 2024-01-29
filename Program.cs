@@ -160,7 +160,7 @@ namespace IceCreamShop
                 {
                     string[] fields = lines[i].Split(',');
 
-                    if (fields.Length == 3)
+                    if (fields.Length == 6)
                     {
                         string name = fields[0].Trim();
                         int memberID = Convert.ToInt32(fields[1].Trim());
@@ -168,9 +168,15 @@ namespace IceCreamShop
                         string membershipStatus = fields[3].Trim();
                         int membershipPoints = Convert.ToInt32(fields[4].Trim());
                         int punchCard = Convert.ToInt32(fields[5].Trim());
-
+                        
                         // Create a new Customer object and add it to the list
                         Customer customer = new Customer(name, memberID, dob);
+                        customer.Rewards.AddPoints(membershipPoints);
+                        for (int j = 0; j < punchCard; j++)
+                        {
+                            customer.Rewards.Punch();
+                        }
+                        customer.Rewards.Tier = membershipStatus;
                         customers.Add(customer);
                     }
                     else
@@ -204,11 +210,11 @@ namespace IceCreamShop
                     return;
                 }
 
-                Console.WriteLine("{0,-5} {1,-10} {2,-10} {3,-10}", "No.", "Name", "MemberID", "DOB");
+                Console.WriteLine("{0,-5} {1,-10} {2,-10} {3,-11} {4, -17} {5, -17} {6, -10}", "No.", "Name", "MemberID", "DOB", "MembershipStatus", "MembershipPoints", "PunchCard");
 
                 for (int i = 0; i < customers.Count; i++)
                 {
-                    Console.WriteLine($"{$"[{i + 1}]",-5}{customers[i].ToString()}");
+                    Console.WriteLine($"{$"[{i + 1}]",-4}{customers[i].ToString()}");
                 }
             }
             catch (Exception ex)
@@ -647,7 +653,7 @@ namespace IceCreamShop
                         {
                             Console.WriteLine("No flavour");
                         }
-                        Console.WriteLine($"    {flavour.Quantity} scoop(s) of {flavour.Type}m");
+                        Console.WriteLine($"    {flavour.Quantity} scoop(s) of {flavour.Type}");
                     }
 
                     if (ToppingList.Count > 0)
