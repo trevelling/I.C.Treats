@@ -84,6 +84,11 @@ namespace IceCreamShop
                             // Advanced Option (b) - Display monthly charged amounts breakdown & total charged amounts for the year [Brayden]
                             Console.Write("Enter the year: ");
                             int year = Convert.ToInt32(Console.ReadLine());
+                            if (year <= 0)
+                            {
+                                Console.WriteLine("Please enter a postive integer");
+                                continue;
+                            }
                             DisplayCharges(year, customerList);
                         }
                         else if (option == 0)
