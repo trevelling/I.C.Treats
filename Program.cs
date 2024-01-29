@@ -1014,11 +1014,23 @@ namespace IceCreamShop
                     {
                         if (order.TimeFulfilled.HasValue)
                         {
-
                             DateTime timeFulfilled = order.TimeFulfilled.Value;
                             if (timeFulfilled.Year == year)
                             {
                                 double price = order.CalculateTotal();
+                                // if its their birthday when they ordered it, the most expensive ice cream is free
+                                if (customer.DOB.Month == order.TimeReceived.Month && customer.DOB.Day == order.TimeReceived.Day)
+                                {
+                                    double expensiveprice = 0;
+                                    foreach (IceCream icecream in order.IceCreamList)
+                                    {
+                                        if (icecream.CalculatePrice() > expensiveprice)
+                                        {
+                                            expensiveprice = icecream.CalculatePrice();
+                                        }
+                                    }
+                                    price -= expensiveprice;
+                                }
                                 ordersList[timeFulfilled.Month-1].Add(price);
                             }
                         }
