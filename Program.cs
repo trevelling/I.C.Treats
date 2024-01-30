@@ -378,25 +378,28 @@ namespace IceCreamShop
                     using (StreamWriter sw = new StreamWriter(csvFilePath, true))
                     {
                         // Extract flavor information from the order and write it to the file
-                        foreach (var iceCream in orders.IceCreamList)
+                        if (orders != null && orders.IceCreamList != null)
                         {
-                            if (iceCream is Cup cupIceCream)
+                            foreach (var iceCream in orders.IceCreamList)
                             {
-                                sw.WriteLine(
-                                    $"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
-                            }
-                            else if (iceCream is Cone coneIceCream)
-                            {
-                                // Check if the Cone is dipped and convert boolean to string
-                                string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
+                                if (iceCream is Cup cupIceCream)
+                                {
+                                    sw.WriteLine(
+                                        $"{cupIceCream.Option},{cupIceCream.Scoops},,,{cupIceCream.CalculatePrice()}");
+                                }
+                                else if (iceCream is Cone coneIceCream)
+                                {
+                                    // Check if the Cone is dipped and convert boolean to string
+                                    string dippedString = coneIceCream.Dipped ? "TRUE" : "FALSE";
 
-                                sw.WriteLine(
-                                    $"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
-                            }
-                            else if (iceCream is Waffle waffleIceCream)
-                            {
-                                sw.WriteLine(
-                                    $"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
+                                    sw.WriteLine(
+                                        $"{coneIceCream.Option},{coneIceCream.Scoops},{dippedString},,{coneIceCream.CalculatePrice()}");
+                                }
+                                else if (iceCream is Waffle waffleIceCream)
+                                {
+                                    sw.WriteLine(
+                                        $"{waffleIceCream.Option},{waffleIceCream.Scoops},,{waffleIceCream.WaffleFlavour},{waffleIceCream.CalculatePrice()}");
+                                }
                             }
                         }
                     }
@@ -460,12 +463,6 @@ namespace IceCreamShop
         {
             try
             {
-                if (newOrderList.Count == 0)
-                {
-                    Console.WriteLine("No orders to process.");
-                    return; // Exit the method if there are no orders to process
-                }
-
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
                 int iceCreamCount = 0;
@@ -476,7 +473,8 @@ namespace IceCreamShop
 
                 foreach (var customer in customers) // Search through customer list
                 {
-                    Order order = newOrderList[0];
+                    
+                    Order order = newOrderList.FirstOrDefault();
                     // Checks if the customer's current order id == matches the order id in newOrderList
                     if (customer.CurrentOrder != null && customer.CurrentOrder.Id == order.Id)
                     {
@@ -637,7 +635,6 @@ namespace IceCreamShop
                         // Add the order to the list of orders to remove
                         ordersToRemove.Add(order);
                     }
-
                 }
 
                 // Remove the processed orders from the newOrderList
