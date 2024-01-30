@@ -86,7 +86,7 @@ namespace IceCreamShop
                             int year = Convert.ToInt32(Console.ReadLine());
                             if (year <= 0)
                             {
-                                Console.WriteLine("Please enter a postive integer");
+                                Console.WriteLine("Please enter a positive integer");
                                 continue;
                             }
                             DisplayCharges(year, customerList);
@@ -468,6 +468,7 @@ namespace IceCreamShop
 
                 double mostExpensiveIceCreamPrice = 0.00;
                 double totalBill = 0.00;
+                int iceCreamCount = 0;
                 bool birthday = false;
                 bool ordersToProcess = false;
 
@@ -496,7 +497,7 @@ namespace IceCreamShop
                         Console.WriteLine("");
                         Console.WriteLine(
                             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                        Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points} | test: {customer.Rewards.PunchCard}");
+                        Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points}");
 
                         if (customer.IsBirthday())
                         {
@@ -513,10 +514,16 @@ namespace IceCreamShop
                         foreach (var iceCream in order.IceCreamList)
                         {
                             Console.WriteLine(iceCream);
+                            iceCreamCount++;
                             if (iceCream.CalculatePrice() > mostExpensiveIceCreamPrice)
                             {
                                 mostExpensiveIceCreamPrice = iceCream.CalculatePrice();
                             }
+                        }
+
+                        for (int i = 1; i < iceCreamCount; i++)
+                        {
+                            customer.Rewards.Punch(); // Increment punch card for each ice cream in the order
                         }
 
                         double orderMostExpensivePrice =
@@ -621,8 +628,6 @@ namespace IceCreamShop
                         totalBill = 0;
                         Console.WriteLine(
                             "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-
-                        customer.Rewards.Punch();
 
                         // Add processed order to OrderHistory
                         customer.OrderHistory.Add(order);
