@@ -583,17 +583,22 @@ namespace IceCreamShop
                                             Console.Write($"Enter the amount of points to redeem (1 point = $0.02): ");
                                             string redeemInput = Console.ReadLine();
 
+                                            // Inside the loop where you ask for redemption input
                                             if (int.TryParse(redeemInput, out redeemAmount))
                                             {
-                                                // Call the RedeemPoints method with the original redeemAmount
-                                                customer.Rewards.RedeemPoints(redeemAmount); // 1 point = $0.02
-                                                totalBill -=
-                                                    redeemAmount * 0.02; // Deduct redeemed amount from the total bill
-                                                Console.WriteLine("");
-                                                Console.WriteLine($"Final Bill: {totalBill:C}");
-                                                break; // Break out of the loop if valid input is provided
-                                            }
+                                                if (redeemAmount > 0)
+                                                {
+                                                    // Call the RedeemPoints method with the original redeemAmount
+                                                    customer.Rewards.RedeemPoints(redeemAmount); // 1 point = $0.02
 
+                                                    // Deduct the monetary value of redeemed points from the total bill
+                                                    totalBill -= redeemAmount * 0.02;
+
+                                                    Console.WriteLine("");
+                                                    Console.WriteLine($"Final Bill: {totalBill:C}");
+                                                    break; // Break out of the loop if valid input is provided
+                                                }
+                                            }
                                             Console.WriteLine("Invalid input. Please enter a valid number.");
                                         }
                                     }
