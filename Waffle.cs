@@ -40,6 +40,10 @@ namespace IceCreamShop
             {
                 basePrice = 9.50;
             }
+            else
+            {
+                basePrice = 2.00;
+            }
 
             // Waffle Flavour
             if (WaffleFlavour.ToLower() == "red velvet" || WaffleFlavour.ToLower() == "charcoal" || WaffleFlavour.ToLower() == "pandan")

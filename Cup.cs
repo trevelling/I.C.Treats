@@ -40,7 +40,11 @@ namespace IceCreamShop
             {
                 basePrice = 6.50;
             }
-            
+            else
+            {
+                basePrice = 2.00;
+            }
+
             string filePathFlavoursCsv = "flavours.csv";
             using (StreamReader sr = new StreamReader(filePathFlavoursCsv))
             {

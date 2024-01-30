@@ -26,7 +26,7 @@ namespace IceCreamShop
         public override double CalculatePrice()
         {
             double basePrice = 0;
-
+            
             if (Scoops == 1)
             {
                 basePrice = 4.00;
@@ -38,6 +38,10 @@ namespace IceCreamShop
             else if (Scoops == 3)
             {
                 basePrice = 6.50;
+            }
+            else
+            {
+                basePrice = 2.00;
             }
 
             string filePathFlavoursCsv = "flavours.csv";
