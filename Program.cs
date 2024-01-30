@@ -260,16 +260,20 @@ namespace IceCreamShop
 
                 // Input validation for Date of Birth (should be in the format "dd/MM/yyyy")
                 DateTime dob;
+                string input;
+
                 do
                 {
                     Console.Write("Enter your Date of Birth (dd/MM/yyyy): ");
-                    if (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                    input = Console.ReadLine();
+
+                    if (!DateTime.TryParseExact(input, "dd/MM/yyyy", CultureInfo.InvariantCulture,
                             DateTimeStyles.None, out dob))
                     {
                         Console.WriteLine("Invalid Date of Birth format. Please enter a valid date in the format dd/MM/yyyy.");
                     }
-                } while (!DateTime.TryParseExact(Console.ReadLine(), "dd/MM/yyyy", CultureInfo.InvariantCulture,
-                    DateTimeStyles.None, out dob));
+                } while (!DateTime.TryParseExact(input, "dd/MM/yyyy", CultureInfo.InvariantCulture,
+                             DateTimeStyles.None, out dob));
 
                 // Rest of the code remains unchanged
                 Customer newCustomer = new Customer(name, id, dob);
@@ -471,30 +475,20 @@ namespace IceCreamShop
 
                 List<Order> ordersToRemove = new List<Order>(); // Keep track of orders to remove
 
+                Queue<Order> queue = pointCardGold.Count != 0 ? pointCardGold : pointCardRegular;
+
+                // Process orders from the gold members order queue
+                Order order = queue.Dequeue();
+
                 foreach (var customer in customers) // Search through customer list
                 {
-                    
-                    Order order = newOrderList.FirstOrDefault();
                     // Checks if the customer's current order id == matches the order id in newOrderList
                     if (customer.CurrentOrder != null && customer.CurrentOrder.Id == order.Id)
                     {
                         ordersToProcess = true;
 
-                        // Process orders from the gold members order queue
-                        while (pointCardGold.Count > 0)
-                        {
-                            pointCardGold.Dequeue();
-                        }
-
-                        // Process orders from the regular members order queue
-                        while (pointCardRegular.Count > 0)
-                        {
-                            pointCardRegular.Dequeue();
-                        }
-
                         Console.WriteLine("");
-                        Console.WriteLine(
-                            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                         Console.WriteLine($"{customer.Name} - {customer.MemberID} | Your Points: {customer.Rewards.Points}");
 
                         if (customer.IsBirthday())
