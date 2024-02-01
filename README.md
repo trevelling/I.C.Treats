@@ -1,4 +1,4 @@
-This is part of a project using C# for the final assignment of the programming II module.
+This is part of a project using C# for our final assignment of the Programming II Module. 
 
 Welcome to I.C.Treats, Singapore's inaugural robotic ice cream store, where the future meets sweetness.
 Our fully automated ice cream parlour, led by the diligent Otto the Friendly Robot Scooper, brings you a unique ice cream experience.
@@ -10,3 +10,7 @@ All paying customers receive a PointCard upon registration, unlocking the potent
 It's our way of sweetening the deal for our dedicated patrons. Otto meticulously manages the orders, ensuring they are prepared in sequence and released only when perfection is achieved.
 Keep an eye out for special treats on your birthday – the first ice cream in your birthday order is on the house! Interested in the code behind this innovative ice cream experience?
 Enjoy the scoop of the future at I.C.Treats! 🍦✨
+
+
+**Note:  Pushes and Updates are not regulated properly
+
