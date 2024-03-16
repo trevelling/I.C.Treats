@@ -1,3 +1,5 @@
+# I.C.Treats
+
 This is part of a project using C# for our final assignment of the Programming II Module. 
 
 Welcome to I.C.Treats, Singapore's inaugural robotic ice cream store, where the future meets sweetness.
